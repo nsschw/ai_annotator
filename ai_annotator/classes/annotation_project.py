@@ -21,21 +21,18 @@ class AnnotationProject:
             self.db = MilvusDB(path)
 
 
-    def add_data_from_csv(self, path: str, column_mapping: dict = {}, **kwargs) -> None:
+    def add_data_from_csv(self, path: str, column_mapping_input: dict = {}, **kwargs) -> None:
         """
         - input and output is needed
         - split = training (default) 
         - id, reasoning optional
         """
 
-        column_mapping = {"id": "id", "input":"input", "output": "output", "reasoning": "reasoning", "split": "split"}.update(column_mapping)
+        column_mapping = {"id": "id", "input":"input", "output": "output", "reasoning": "reasoning", "split": "split"}
+        column_mapping.update(column_mapping_input)
+
         df_import : pd.DataFrame = pd.read_csv(path)
         data : list[dict] = []
-
-        #print(df_import)
-
-        print(df_import.to_dict("records")[:5])
-        print(column_mapping)
 
         reasoning_available: bool = df_import.to_dict("records")[0].get(column_mapping["reasoning"], None)
         id_available: bool = df_import.to_dict("records")[0].get(column_mapping["id"], None)
