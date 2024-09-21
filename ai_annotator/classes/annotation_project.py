@@ -26,6 +26,7 @@ class AnnotationProject:
         default_column_mapping = {"id": "id", "input":"input", "output": "output", "reasoning": "reasoning", "split": "split"}
         default_column_mapping.update(column_mapping)
         column_mapping = default_column_mapping
+        print(column_mapping)
 
         df_import : pd.DataFrame = pd.read_csv(path)
         data : list[dict] = []
