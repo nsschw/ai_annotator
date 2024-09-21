@@ -27,13 +27,13 @@ class AnnotationProject:
         - split = training (default) 
         - id, reasoning optional
         """
-        
+
         column_mapping = {"id": "id", "input":"input", "output": "output", "reasoning": "reasoning", "split": "split"}.update(column_mapping)
         df_import : pd.DataFrame = pd.read_csv(path)
         data : list[dict] = []
 
-        reasoning_available: bool = df_import.to_records()[0].get(column_mapping["reasoning"], None)
-        id_available: bool = df_import.to_records()[0].get(column_mapping["id"], None)
+        reasoning_available: bool = df_import.to_dict(orient="records")[0].get(column_mapping["reasoning"], None)
+        id_available: bool = df_import.to_records(orient="records")[0].get(column_mapping["id"], None)
 
         for idx, row in df_import.iterrows():
             example:dict = {}
