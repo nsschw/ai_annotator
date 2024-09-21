@@ -1,26 +1,35 @@
 from pymilvus import MilvusClient
 import numpy as np
 import chromadb
+
 import logging
+import abc
 
 
-class db():
-
-    def insert_data():
+class DB(abc.ABC):
+    @abc.abstractmethod
+    def insert_data(self, path: str):
+        """
+        Takes data as a list of dicts which contain this projects standard keys (input, output, id, reasoning, split) and inputs them in the databases native way.
+        """
         pass
 
-    def query():
+    @abc.abstractmethod
+    def query(self, text: str, k: int) -> list[dict]:
+        """
+        Takes a string as input and queries the db in its native way returning k most similar entries in the standard style
+        """
         pass
 
 
 
-class ChromaDB:    
+class ChromaDB(DB):    
     """
     TODO:
     - [ ] Add possibility of using a custom embedding model
     """
 
-    def __init__(self, path: str, **kwargs):
+    def __init__(self, path: str, **kwargs) -> None:
         self.client = chromadb.PersistentClient(path=path)
         self.collection_name : str = kwargs.get("collection_name", "Demo")
         self.collection = self.client.get_or_create_collection(self.collection_name)
@@ -50,62 +59,9 @@ class ChromaDB:
                 where={"split": "train"},
             )
         
-        
-        # restructure to fit out general structure -> most similar doc first
-
+        # restructure to fit the projects general structure -> most similar doc first
         data: list[dict] = query_results["metadatas"][0]
-
-        # add input
+        
         for i, example in enumerate(data):
             example["input"] = query_results["documents"][0][i]
-        
         return data
-        
-
-
-
-
-class MilvusDB:
-    """
-    Based on MilvusLite, therefore not as fuctional
-    Some functions might be weird, bc MilvusLite has a reduced functioality -> Upgrade if needed...
-
-    """
-
-    def __init__(self, path: str, **kwargs) -> None:        
-        self.client = MilvusClient(path)
-        self.collection_name : str = kwargs.get("collection_name", "Demo")
-
-        if self.client.has_collection(collection_name=self.collection_name):
-            pass
-        else: 
-            self.client.create_collection(
-                collection_name=self.collection_name,
-                dimension=768,
-            )
-
-
-    def insert_data(self, data: list[dict]) -> None:
-        # check if consistent with available data
-
-        # insert data
-        self.client.insert(
-            collection_name=self.collection_name,
-            data=data)
-
-
-    def add_embeddings(self, model):
-        pass
-         
-        
-        
-        
-
-    def search(self, vector: np.array, k: int=3):
-
-        res = self.client.search(
-            collection_name="demo_collection",
-            data=[vector],
-            limit=k,
-            output_fields=["text", "subject"],
-            )

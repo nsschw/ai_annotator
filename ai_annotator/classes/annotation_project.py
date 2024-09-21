@@ -11,8 +11,12 @@ class AnnotationProject:
     """
 
     def __init__(self, path: str, implementation = "ChromaDB") -> None:
+
         if implementation == "ChromaDB":
             self.db = ChromaDB(path)
+
+
+        logging.info("Database initialized correctly.")
 
         
     def add_data_from_csv(self, path: str, column_mapping: dict = {}, **kwargs) -> None:
@@ -22,10 +26,10 @@ class AnnotationProject:
         - id, reasoning optional
         """
 
+        # handle column mapping
         default_column_mapping = {"id": "id", "input":"input", "output": "output", "reasoning": "reasoning", "split": "split"}
         default_column_mapping.update(column_mapping)
         column_mapping = default_column_mapping
-        print(column_mapping)
 
         df_import : pd.DataFrame = pd.read_csv(path)
         data : list[dict] = []
@@ -51,15 +55,13 @@ class AnnotationProject:
 
             data.append(example)
    
+
         self.db.insert_data(data=data)        
-        logging.info("Successfully added data!")        
+        logging.info("Successfully added data!")
 
 
-    def generate_reasonings(self, model) -> None:
-        pass
-
-
-    def generate_embeddings(self, model) -> None:
+    def generate_reasonings(self, model, **kwargs) -> None:
+        # Gold Label-induced Reasoning: https://arxiv.org/pdf/2305.02105
         pass
 
 
