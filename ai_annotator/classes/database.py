@@ -55,8 +55,8 @@ class ChromaDB:
         data: list[dict] = query_results["metadatas"]
 
         # add input
-        for i in range(data):
-            data[i]["input"] = query_results["document"][i]
+        for i, example in enumerate(data):
+            example["input"] = query_results["document"][i]
         
         return data
         
