@@ -12,10 +12,14 @@ class db():
     def query():
         pass
 
-    
 
-class ChromaDB:
+
+class ChromaDB:    
+    """
     
+    TODO:
+    - [ ] Add possibility of custom embedding model
+    """
     def __init__(self, path: str, **kwargs):
         self.client = chromadb.PersistentClient(path=path)
         self.collection_name : str = kwargs.get("collection_name", "Demo")
@@ -23,8 +27,7 @@ class ChromaDB:
 
         
     def insert_data(self, data: list[dict]):
-        # chromadb automatically tokenizes & vectorizes the key "document"
-
+        # chromadb automatically tokenizes & vectorizes the documents
         documents: list[str] = [entry.pop("input") for entry in data]
 
         if data[0].get("id", None):
@@ -37,7 +40,16 @@ class ChromaDB:
             documents = documents,
             metadatas = data,
             ids = ids
-        )      
+        )
+
+    def query(self, text: str, k = 3, **kwargs): # TODO: Find return type!!!
+        doc = self.collection.query(
+                query_texts=[text],
+                n_results=k,
+                where={"split": "train"},
+            )
+        
+        return doc
         
 
 
