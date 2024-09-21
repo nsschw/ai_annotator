@@ -26,7 +26,7 @@ class ChromaDB:
         self.collection = self.client.get_or_create_collection(self.collection_name)
 
         
-    def insert_data(self, data: list[dict]):
+    def insert_data(self, data: list[dict]) -> None:
         # chromadb automatically tokenizes & vectorizes the documents
         documents: list[str] = [entry.pop("input") for entry in data]
 
@@ -42,14 +42,23 @@ class ChromaDB:
             ids = ids
         )
 
-    def query(self, text: str, k = 3, **kwargs): # TODO: Find return type!!!
-        doc = self.collection.query(
+
+    def query(self, text: str, k = 3, **kwargs) -> list[dict]: 
+        query_results = self.collection.query(
                 query_texts=[text],
                 n_results=k,
                 where={"split": "train"},
             )
         
-        return doc
+        # restructure to fit out general structure -> most similar doc first
+
+        data: list[dict] = query_results["metadatas"]
+
+        # add input
+        for i in range(data):
+            data[i]["input"] = query_results["document"][i]
+        
+        return data
         
 
 
@@ -61,7 +70,6 @@ class MilvusDB:
     Some functions might be weird, bc MilvusLite has a reduced functioality -> Upgrade if needed...
 
     """
-
 
     def __init__(self, path: str, **kwargs) -> None:        
         self.client = MilvusClient(path)

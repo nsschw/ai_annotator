@@ -15,7 +15,6 @@ class AnnotationProject:
             self.db = ChromaDB(path)
 
         
-
     def add_data_from_csv(self, path: str, column_mapping: dict = {}, **kwargs) -> None:
         """
         - input and output are needed
@@ -54,11 +53,6 @@ class AnnotationProject:
    
         self.db.insert_data(data=data)        
         logging.info("Successfully added data!")        
-
-        # check how the following could work with melvius!!!! 
-        # rather convinience functions
-        # if kwargs.get("generate_reasoning") == True: 
-        # if kwargs.get("generate_embeddings") == True: 
 
 
     def generate_reasonings(self, model) -> None:
