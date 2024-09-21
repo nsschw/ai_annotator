@@ -1,5 +1,5 @@
 import pandas as pd
-from .database import MilvusDB, ChromaDB
+from .database import ChromaDB
 import os
 import logging
 
