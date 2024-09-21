@@ -32,9 +32,9 @@ class AnnotationProject:
         df_import : pd.DataFrame = pd.read_csv(path)
         data : list[dict] = []
 
-        print(df_import)
+        #print(df_import)
 
-        print(df_import.to_dict("records"))
+        print(df_import.to_dict("records")[:5])
 
         reasoning_available: bool = df_import.to_dict("records")[0].get(column_mapping["reasoning"], None)
         id_available: bool = df_import.to_dict("records")[0].get(column_mapping["id"], None)
