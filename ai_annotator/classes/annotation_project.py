@@ -25,6 +25,7 @@ class AnnotationProject:
 
         column_mapping = {"id": "id", "input":"input", "output": "output", "reasoning": "reasoning", "split": "split"}
         column_mapping.update(column_mapping_input)
+        print(column_mapping)
 
         df_import : pd.DataFrame = pd.read_csv(path)
         data : list[dict] = []

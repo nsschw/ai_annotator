@@ -16,10 +16,10 @@ class db():
 
 class ChromaDB:    
     """
-    
     TODO:
-    - [ ] Add possibility of custom embedding model
+    - [ ] Add possibility of using a custom embedding model
     """
+
     def __init__(self, path: str, **kwargs):
         self.client = chromadb.PersistentClient(path=path)
         self.collection_name : str = kwargs.get("collection_name", "Demo")
