@@ -32,8 +32,8 @@ class AnnotationProject:
         df_import : pd.DataFrame = pd.read_csv(path)
         data : list[dict] = []
 
-        reasoning_available: bool = df_import.to_dict(orient="records")[0].get(column_mapping["reasoning"], None)
-        id_available: bool = df_import.to_records(orient="records")[0].get(column_mapping["id"], None)
+        reasoning_available: bool = df_import.to_dict("records")[0].get(column_mapping["reasoning"], None)
+        id_available: bool = df_import.to_dict("records")[0].get(column_mapping["id"], None)
 
         for idx, row in df_import.iterrows():
             example:dict = {}
