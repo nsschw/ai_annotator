@@ -22,6 +22,13 @@ class MilvusDB:
         self.client = MilvusClient(path)
         self.collection_name : str = kwargs.get("collection_name", "Demo")
 
+        if self.client.has_collection(collection_name=self.collection_name):
+            pass
+        else: 
+            self.client.create_collection(collection_name=self.collection_name,
+                # dimension=768,  Test without
+            )
+
 
     def insert_data(self, data: list[dict]) -> None:
         # check if consistent with available data
@@ -33,15 +40,9 @@ class MilvusDB:
 
 
     def add_embeddings(self, model):
+        pass
          
-        if self.client.has_collection(collection_name=self.collection_name):
-            pass
-
-        else: 
-            self.client.create_collection(
-                collection_name=self.collection_name,
-                dimension=768,  # The vectors we will use in this demo has 768 dimensions
-            )
+        
         
         
 
