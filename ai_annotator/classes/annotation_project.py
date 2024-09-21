@@ -21,13 +21,14 @@ class AnnotationProject:
             self.db = MilvusDB(path)
 
 
-    def add_data_from_csv(self, path: str, column_mapping: dict = {"id": "id", "input":"input", "output": "output", "reasoning": "reasoning", "split": "split"}, **kwargs) -> None:
+    def add_data_from_csv(self, path: str, column_mapping: dict = {}, **kwargs) -> None:
         """
         - input and output is needed
         - split = training (default) 
         - id, reasoning optional
         """
 
+        column_mapping = {"id": "id", "input":"input", "output": "output", "reasoning": "reasoning", "split": "split"}.update(column_mapping)
         df_import : pd.DataFrame = pd.read_csv(path)
         data : list[dict] = []
 
