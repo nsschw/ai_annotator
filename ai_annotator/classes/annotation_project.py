@@ -53,8 +53,7 @@ class AnnotationProject:
             data.append(example)
    
         self.db.insert_data(data=data)        
-        logging.info("Successfully added data!")
-        
+        logging.info("Successfully added data!")        
 
         # check how the following could work with melvius!!!! 
         # rather convinience functions
