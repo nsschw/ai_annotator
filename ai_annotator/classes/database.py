@@ -50,14 +50,14 @@ class ChromaDB:
                 where={"split": "train"},
             )
         
-        print(query_results)
+        
         # restructure to fit out general structure -> most similar doc first
 
-        data: list[dict] = query_results["metadatas"]
+        data: list[dict] = query_results["metadatas"][0]
 
         # add input
         for i, example in enumerate(data):
-            example["input"] = query_results["documents"][i]
+            example["input"] = query_results["documents"][0][i]
         
         return data
         
