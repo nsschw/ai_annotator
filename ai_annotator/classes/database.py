@@ -1,12 +1,11 @@
 from pymilvus import MilvusClient
 import numpy as np
-import chromadb
 
-
-class ChromaDB:
-    
-    def __init__(self, path, **kwargs):
-        self.client = client = chromadb.PersistentClient(path=path)
+#import chromadb
+#class ChromaDB:
+#    
+#    def __init__(self, path, **kwargs):
+#        self.client = client = chromadb.PersistentClient(path=path)
 
 
 

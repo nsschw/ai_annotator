@@ -27,7 +27,7 @@ class AnnotationProject:
         - split = training (default) 
         - id, reasoning optional
         """
-
+        
         column_mapping = {"id": "id", "input":"input", "output": "output", "reasoning": "reasoning", "split": "split"}.update(column_mapping)
         df_import : pd.DataFrame = pd.read_csv(path)
         data : list[dict] = []
