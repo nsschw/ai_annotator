@@ -35,6 +35,7 @@ class AnnotationProject:
         #print(df_import)
 
         print(df_import.to_dict("records")[:5])
+        print(column_mapping)
 
         reasoning_available: bool = df_import.to_dict("records")[0].get(column_mapping["reasoning"], None)
         id_available: bool = df_import.to_dict("records")[0].get(column_mapping["id"], None)
