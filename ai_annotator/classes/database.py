@@ -1,11 +1,44 @@
 from pymilvus import MilvusClient
 import numpy as np
+import chromadb
+import logging
 
-#import chromadb
-#class ChromaDB:
-#    
-#    def __init__(self, path, **kwargs):
-#        self.client = client = chromadb.PersistentClient(path=path)
+
+class db():
+
+    def insert_data():
+        pass
+
+    def query():
+        pass
+
+    
+
+class ChromaDB:
+    
+    def __init__(self, path: str, **kwargs):
+        self.client = chromadb.PersistentClient(path=path)
+        self.collection_name : str = kwargs.get("collection_name", "Demo")
+        self.collection = self.client.get_or_create_collection(self.collection_name)
+
+        
+    def insert_data(self, data: list[dict]):
+        # chromadb automatically tokenizes & vectorizes the key "document"
+
+        documents: list[str] = [entry.pop("input") for entry in data]
+
+        if data[0].get("id", None):
+            ids: list = [entry.pop("id") for entry in data]
+        else:
+            logging.warning("No IDs inserted. Using the index as ID")
+            ids: list = [str(f"id{i}" for i in range(len(data)))]
+
+        self.collection.add(
+            documents = documents,
+            metadatas = data,
+            ids = ids
+        )      
+        
 
 
 
@@ -25,8 +58,9 @@ class MilvusDB:
         if self.client.has_collection(collection_name=self.collection_name):
             pass
         else: 
-            self.client.create_collection(collection_name=self.collection_name,
-                # dimension=768,  Test without
+            self.client.create_collection(
+                collection_name=self.collection_name,
+                dimension=768,
             )
 
 

@@ -1,5 +1,5 @@
 import pandas as pd
-from .database import MilvusDB
+from .database import MilvusDB, ChromaDB
 import os
 import logging
 
@@ -10,20 +10,15 @@ class AnnotationProject:
     
     """
 
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str, implementation = "ChromaDB") -> None:
+        if implementation == "ChromaDB":
+            self.db = ChromaDB(path)
 
-        if os.path.exists(path):
-            logging.info("Project with this name exisits already. Loading existing project....")
-            self.db = MilvusDB(path)
-
-        else:
-            logging.info("Creating new project.")
-            self.db = MilvusDB(path)
-
+        
 
     def add_data_from_csv(self, path: str, column_mapping_input: dict = {}, **kwargs) -> None:
         """
-        - input and output is needed
+        - input and output are needed
         - split = training (default) 
         - id, reasoning optional
         """
