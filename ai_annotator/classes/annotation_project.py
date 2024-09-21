@@ -6,63 +6,57 @@ import logging
 class AnnotationProject:
     """
     Class that servers as hub for annotation projects
-    
+    Connnects database, annotation model & embedding model    
     
     """
-
 
     def __init__(self, path: str) -> None:
 
         if os.path.exists(path):
             logging.info("Project with this name exisits already. Loading existing project....")
+            self.db = MilvusDB(path)
 
-        self.db = MilvusDB(path)
+        else:
+            logging.info("Creating new project.")
+            self.db = MilvusDB(path)
 
-        # check if path/name.db exists existis
-        # if yes load
-        # else create
-
-
-        pass
-
-
-    #@classmethod
-    #def load(cls, path: str) -> 'AnnotationProject':
-    #
-    #    project : 'AnnotationProject' = cls()
-    #
-    #    return project
-            
 
     def add_data_from_csv(self, path: str, column_mapping: dict = {"id": "id", "input":"input", "output": "output", "reasoning": "reasoning", "split": "split"}, **kwargs) -> None:
-        
-        # input and output is needed 
-        # id, reasoning optional, split optional (train = default)
+        """
+        - input and output is needed
+        - split = training (default) 
+        - id, reasoning optional
+        """
 
-        df_import : pd.DataFrame = pd.read_csv("path")
+        df_import : pd.DataFrame = pd.read_csv(path)
         data : list[dict] = []
 
+        reasoning_available: bool = df_import.to_records()[0].get(column_mapping["reasoning"], None)
+        id_available: bool = df_import.to_records()[0].get(column_mapping["id"], None)
+
         for idx, row in df_import.iterrows():
-            case = {}
+            example:dict = {}
 
             # needed
-            case["input"] = row.get(column_mapping["input"], "TEST")
-            case["output"] = row.get(column_mapping["output"], "TEST")
+            example["input"] = row.get(column_mapping["input"], "TEST")
+            example["output"] = row.get(column_mapping["output"], "TEST")
 
             # default
-            case["split"] = row.get(column_mapping["split"], "train")
+            example["split"] = row.get(column_mapping["split"], "train")
 
-            # 
+            # optional
+            if reasoning_available:
+                example["reasoning"] = row.get(column_mapping["reasoning"], None)
+            if id_available:
+                example["id"] = row.get(column_mapping["id"], None)
 
-            # optional            
-            
+            data.append(example)
+   
+        self.db.insert_data(data=data)        
+        logging.info("Successfully added data!")
+        
 
-        
-        
-        
-
-        self.db.insert_data(data=data)
-        
+        # check how the following could work with melvius!!!! 
         # rather convinience functions
         # if kwargs.get("generate_reasoning") == True: 
         # if kwargs.get("generate_embeddings") == True: 
@@ -77,5 +71,5 @@ class AnnotationProject:
 
 
     def predict(self, input: any, auto_save = True) -> list[str]:
-        # predict on .csv, list..., test_cases...
+        # predict on .csv, list..., test_examples...
         pass
