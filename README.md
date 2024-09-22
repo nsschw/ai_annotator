@@ -46,3 +46,9 @@ Track Approaches (optional)
 ### Open Questions:
 - Only save on explicit command or save automatically?
    - Specify during test/addig cases etc.
+
+
+To Do Monday:
+- [ ] query and insertionn of meta for full database
+- [ ] generation of synthetic reasoning
+- [ ] use custom embedding model

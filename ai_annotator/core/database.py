@@ -42,8 +42,8 @@ class ChromaDB(DB):
         if data[0].get("id", None):
             ids: list = [entry.pop("id") for entry in data]
         else:
-            logging.warning("No IDs inserted. Using the index as ID")
             ids: list = [str(f"id{i}" for i in range(len(data)))]
+            logging.warning("No IDs inserted. Using the index as ID")
 
         self.collection.add(
             documents = documents,

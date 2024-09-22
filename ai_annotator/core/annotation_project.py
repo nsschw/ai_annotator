@@ -15,8 +15,7 @@ class AnnotationProject:
         if implementation == "ChromaDB":
             self.db = ChromaDB(path)
 
-
-        logging.info("Database initialized correctly.")
+        logging.info("Database initialized.")
 
         
     def add_data_from_csv(self, path: str, column_mapping: dict = {}, **kwargs) -> None:
