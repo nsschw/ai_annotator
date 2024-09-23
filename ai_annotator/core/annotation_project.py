@@ -93,10 +93,10 @@ class AnnotationProject:
         else:
             self.reasoning_available = False
 
-        logging.info("Successfully added data!")
+        logging.info("Successfully added data.")
 
 
-    def generate_reasonings(self, reasoning_prompt: Optional[str] = None, **kwargs) -> None:
+    def generate_reasoning(self, reasoning_prompt: Optional[str] = None, **kwargs) -> None:
         """
         Queries DB to generate gold label-induced reasoning. Refer to https://arxiv.org/pdf/2305.02105 for more details. 
         
@@ -127,7 +127,7 @@ class AnnotationProject:
                 raise ValueError("Invalid reasoning prompt format. Ensure it contains {task_description}, {input} and {output} placeholders.")
         
 
-        # generate reasonings
+        # generate reasoning
         logging.info("Starting to generate reasoning for entries without existing reasoning.")
         for entry in tqdm.tqdm(data):
 
@@ -142,7 +142,7 @@ class AnnotationProject:
                 self.db.update([entry])
 
         self.reasoning_available = True
-        logging.info("Finished generating reasonings.")
+        logging.info("Finished generating reasoning.")
        
         
     def predict(self, input: Optional[Union[list, str, None]] = None, **kwargs) -> list[str]:   
@@ -169,14 +169,12 @@ class AnnotationProject:
         if reasoning and not self.reasoning_available:
             while True:
                 do_reasoning: str = input("Reasoning data is incomplete. Would you like to generate the missing reasonings using the current model? [y/n]: ").strip().lower()
-
                 if do_reasoning in {"y", "n"}:
                     break
                 else:
                     print("Invalid input. Please enter 'y' for yes or 'n' for no.")
-
             if do_reasoning == "y":
-                self.generate_reasonings(self.config.model)
+                self.generate_reasoning(self.config.model)
 
         # determine generation logic according to input type
         if input is None:
@@ -223,7 +221,7 @@ class AnnotationProject:
             # assistant
             assistant: str = ""
             if kwargs.get("reasoning", False):
-                assistant += "Thinking: " + entry["reasoning"] + "\n"
+                assistant += "Evaluation: " + entry["reasoning"] + "\n"
             assistant += entry["output"]
             conversation.append({"role": "assistant", "content": assistant})
 
