@@ -88,7 +88,7 @@ class AnnotationProject:
         logging.info("Start generating embeddings for entries without.")
         for entry in data:
             if (entry.get("reasoning", None)) and (kwargs.get("overwrite", False) == False):
-                logging.warning(f"Skipping reasoning for entry with {entry["id"]} as reasoning already exists. Set overwrite = True to regenerate.")
+                logging.warning(f"Skipping reasoning for entry with {entry['id']} as reasoning already exists. Set overwrite = True to regenerate.")
                 continue
 
             entry["reasoning"] = model.generate_response({"role": "user", "content": prompt.format(output = entry["output"], input = entry["input"])})
