@@ -211,7 +211,7 @@ class AnnotationProject:
             assistant: str = ""
             if kwargs.get("reasoning", False):
                 assistant += "Thinking: " + entry["reasoning"] + "\n"
-            assistant += assistant["output"]
+            assistant += entry["output"]
             conversation.append({"role": "assistant", "content": assistant})
 
         user_request: str = ""
