@@ -49,6 +49,6 @@ Track Approaches (optional)
 
 
 To Do Monday:
-- [ ] query and insertionn of meta for full database
-- [ ] generation of synthetic reasoning
+- [X] query and insertionn of meta for full database
+- [X] generation of synthetic reasoning
 - [ ] use custom embedding model
