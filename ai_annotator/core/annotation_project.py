@@ -1,11 +1,13 @@
 import pandas as pd
-from .database import ChromaDB
 import os
 import logging
 
+from .database import ChromaDB
+from .models import Model
+
 class AnnotationProject:
     """
-    Class that servers as hub for annotation projects
+    Class that serves as hub for annotation projects
     Connnects database, annotation model & embedding model    
     
     """
@@ -33,37 +35,61 @@ class AnnotationProject:
         df_import : pd.DataFrame = pd.read_csv(path)
         data : list[dict] = []
 
-        reasoning_available: bool = df_import.to_dict("records")[0].get(column_mapping["reasoning"], None)
-        id_available: bool = df_import.to_dict("records")[0].get(column_mapping["id"], None)
+        reasoning_available: bool = df_import.to_dict("records")[0].get(column_mapping["reasoning"], False)
+        id_available: bool = df_import.to_dict("records")[0].get(column_mapping["id"], False)
 
         for idx, row in df_import.iterrows():
-            example:dict = {}
+            record: dict = {}
 
             # needed
-            example["input"] = row.get(column_mapping["input"], "TEST")
-            example["output"] = row.get(column_mapping["output"], "TEST")
+            record["input"] = row.get(column_mapping["input"], KeyError)
+            record["output"] = row.get(column_mapping["output"], KeyError)
 
             # default
-            example["split"] = row.get(column_mapping["split"], "train")
+            record["split"] = row.get(column_mapping["split"], "train")
 
             # optional
             if reasoning_available:
-                example["reasoning"] = row.get(column_mapping["reasoning"], None)
+                record["reasoning"] = row.get(column_mapping["reasoning"], None)
             if id_available:
-                example["id"] = row.get(column_mapping["id"], None)
+                record["id"] = row.get(column_mapping["id"], None)
 
-            data.append(example)
+            data.append(record)
    
 
         self.db.insert_data(data=data)        
         logging.info("Successfully added data!")
 
 
-    def generate_reasonings(self, model, **kwargs) -> None:
-        # Gold Label-induced Reasoning: https://arxiv.org/pdf/2305.02105
+    def generate_reasonings(self, model: Model, **kwargs) -> None:
+        """
+        Idea: Gold Label-induced Reasoning: https://arxiv.org/pdf/2305.02105
+        
+        Generates reasoning on the train split to have higher quality demonstrations
+ 
+        Takes: model and custom prompt. Custom Prompt needs to have {input} and {output}.
+        """
+
+        # check if reasoning is already exisitng
+        
+        # pull existing cases
+        
+        # generate reasoning
+        
+        # upsert db
         pass
 
-
-    def predict(self, input: any, auto_save = True) -> list[str]:
+        
+    def predict(self, input: any, **kwargs) -> list[str]:
         # predict on .csv, list..., test_examples...
+
+        number_demonstrations: int = kwargs.get("number_demonstrations", 3)
+        reasoning: bool = kwargs.get("reasoning", False)
+
+        # check if reasoning avaiable
+
+        #else:
+        #    self.generate_reasonings()
+        
+
         pass
