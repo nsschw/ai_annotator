@@ -75,7 +75,7 @@ class AnnotationProject:
 
         # set up prompt
         if reasoning_prompt is None:
-            logging.warning("No reasoning prompt was given. Falling back to default prompt")
+            logging.warning("Reasoning prompt not provided. Using default prompt instead.")
             with open("ai_annotator/prompts/gold_label-induced_reasoning.txt", "r") as f:
                 reasoning_prompt = f.read()
         else:
@@ -84,17 +84,17 @@ class AnnotationProject:
             except:
                 raise ValueError("Invalid reasoning prompt format. Ensure it contains {task_description}, {input} and {output} placeholders.")
         
-
-
-        logging.info("Start generating embeddings for entries without.")
+        # generate reasonings
+        logging.info("Starting to generate reasoning for entries without existing reasoning.")
         for entry in data:
             if (entry.get("reasoning", None)) and (kwargs.get("overwrite", False) == False):
-                logging.warning(f"Skipping reasoning for entry with {entry['id']} as reasoning already exists. Set overwrite = True to regenerate.")
+                logging.warning(f"Skipping reasoning for entry with ID {entry['id']} because reasoning already exists. Set overwrite=True to regenerate.")
                 continue
 
             entry["reasoning"] = model.generate_response([{"role": "user", "content": reasoning_prompt.format(output = entry["output"], input = entry["input"], task_description=task_description)}])
-
             self.db.update([entry])
+
+        logging.info("Finished generating reasonings.")
         
         
     def predict(self, input: any, **kwargs) -> list[str]:
