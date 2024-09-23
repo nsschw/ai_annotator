@@ -61,26 +61,31 @@ class AnnotationProject:
         logging.info("Successfully added data!")
 
 
-    def generate_reasonings(self, model: Model, task_description: str, **kwargs) -> None:
+    def generate_reasonings(self, model: Model, task_description: str, reasoning_prompt: str = None, **kwargs) -> None:
         """
         Idea: Gold Label-induced Reasoning: https://arxiv.org/pdf/2305.02105
         
         Generates reasoning on the train split to have higher quality demonstrations
  
         Takes: model and custom prompt. Custom Prompt needs to have {input} and {output}.
-        """
-
+        """      
         # extract data
         data = self.db.full_extract()
 
-        reasoning_prompt = kwargs.get("reasoning_prompt", None)
+        # set up prompt
         if reasoning_prompt is None:
+            logging.warning("No reasoning prompt was given. Falling back to default prompt")
             with open("prompts/gold_label-induced_reasoning.txt", "r") as f:
                 reasoning_prompt = f.read()
+        else:
+            try:
+                reasoning_prompt.format(output = "TEST", input = "TEST")
+            except:
+                raise ValueError("Invalid reasoning prompt format. Ensure it contains {input} and {output} placeholders.")
         prompt = task_description + "\n" + reasoning_prompt
 
-        logging.info("Start generating embeddings for entries without.")
 
+        logging.info("Start generating embeddings for entries without.")
         for entry in data:
             if (entry.get("reasoning", None)) and (kwargs.get("overwrite", False) == False):
                 logging.warning(f"Skipping reasoning for entry with {entry["id"]} as reasoning already exists. Set overwrite = True to regenerate.")
