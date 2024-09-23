@@ -228,7 +228,7 @@ class AnnotationProject:
             conversation.append({"role": "assistant", "content": assistant})
 
         user_request: str = ""
-        user_request += self.task_description + "\n"
+        user_request += self.config.task_description + "\n"
         user_request += input
         conversation.append({"role": "user", "content": user_request})
 
