@@ -24,17 +24,12 @@ class DB(abc.ABC):
 
 
 class ChromaDB(DB):    
-    """
-    TODO:
-    - [ ] Add possibility of using a custom embedding model
-    """
 
     def __init__(self, path: str, **kwargs) -> None:
         self.client = chromadb.PersistentClient(path=path)
         self.collection_name : str = kwargs.get("collection_name", "Demo")
         self.collection = self.client.get_or_create_collection(self.collection_name)
 
-        
     def insert_data(self, data: list[dict]) -> None:
         # chromadb automatically tokenizes & vectorizes the documents
         documents: list[str] = [entry.pop("input") for entry in data]
@@ -42,10 +37,34 @@ class ChromaDB(DB):
         if data[0].get("id", None):
             ids: list = [entry.pop("id") for entry in data]
         else:
-            ids: list = [str(f"id{i}" for i in range(len(data)))]
+            ids: list = [f"id{i}" for i in range(len(data))]
             logging.warning("No IDs inserted. Using the index as ID")
 
         self.collection.add(
+            documents = documents,
+            metadatas = data,
+            ids = ids
+        )
+    
+    def full_extract(self) -> list[dict]:
+        output = self.collection.get(
+            include=["documents", "metadatas"]
+        )
+
+        print(output)
+
+        # restructure to fit the projects general structure -> most similar doc first
+        data: list[dict] = output["metadatas"]
+        for i, example in enumerate(data):
+            example["input"] = output["documents"][i]
+            example["id"] = output["ids"][i]
+
+        return data
+    
+    
+    def update(self, data: list[dict]):        
+        
+        self.collection.upsert(
             documents = documents,
             metadatas = data,
             ids = ids
@@ -65,3 +84,10 @@ class ChromaDB(DB):
         for i, example in enumerate(data):
             example["input"] = query_results["documents"][0][i]
         return data
+    
+
+    @staticmethod
+    def transfer_to_collection():
+        """Transfers metaadata and documents to a new collection where a different emb function can be used        
+        """
+        pass
