@@ -1,1 +1,2 @@
+This was the instruction: {instruction}.
 What are the clues that lead {output} being correct in the document: {input}?

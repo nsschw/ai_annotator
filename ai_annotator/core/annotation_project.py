@@ -67,8 +67,9 @@ class AnnotationProject:
         
         Generates reasoning on the train split to have higher quality demonstrations
  
-        Takes: model and custom prompt. Custom Prompt needs to have {input} and {output}.
+        Takes: model and custom prompt. Custom Prompt needs to have {task_description}, {input} and {output}.
         """      
+
         # extract data
         data = self.db.full_extract()
 
@@ -79,10 +80,10 @@ class AnnotationProject:
                 reasoning_prompt = f.read()
         else:
             try:
-                reasoning_prompt.format(output = "TEST", input = "TEST")
+                reasoning_prompt.format(output = "TEST", input = "TEST", task_description = "TEST")
             except:
-                raise ValueError("Invalid reasoning prompt format. Ensure it contains {input} and {output} placeholders.")
-        prompt = task_description + "\n" + reasoning_prompt
+                raise ValueError("Invalid reasoning prompt format. Ensure it contains {task_description}, {input} and {output} placeholders.")
+        
 
 
         logging.info("Start generating embeddings for entries without.")
@@ -91,9 +92,9 @@ class AnnotationProject:
                 logging.warning(f"Skipping reasoning for entry with {entry['id']} as reasoning already exists. Set overwrite = True to regenerate.")
                 continue
 
-            entry["reasoning"] = model.generate_response([{"role": "user", "content": prompt.format(output = entry["output"], input = entry["input"])}])
+            entry["reasoning"] = model.generate_response([{"role": "user", "content": reasoning_prompt.format(output = entry["output"], input = entry["input"])}])
 
-        self.db.update(data)
+            self.db.update([data])
         
         
     def predict(self, input: any, **kwargs) -> list[str]:
