@@ -1,6 +1,8 @@
 import pandas as pd
 import os
 import logging
+import tqdm
+from typing import Optional, Union
 
 from .database import ChromaDB
 from .models import Model
@@ -11,7 +13,10 @@ class AnnotationProject:
     Connnects database, annotation & embedding models.
     """
 
-    def __init__(self, path: str, implementation = "ChromaDB") -> None:
+    def __init__(self, path: str, task_description: str, implementation = "ChromaDB") -> None:
+
+        self.reasoning_available: bool = False
+        self.task_description: str = task_description
 
         if implementation == "ChromaDB":
             self.db = ChromaDB(path)
@@ -67,10 +72,16 @@ class AnnotationProject:
    
 
         self.db.insert_data(data=data)        
+        
+        if reasoning_available:
+            self.reasoning_available = True
+        else:
+            self.reasoning_available = False
+
         logging.info("Successfully added data!")
 
 
-    def generate_reasonings(self, model: Model, task_description: str, reasoning_prompt: str = None, **kwargs) -> None:
+    def generate_reasonings(self, model: Model, reasoning_prompt: str = None, **kwargs) -> None:
         """
         Queries DB to generate gold label-induced reasoning. Refer to https://arxiv.org/pdf/2305.02105 for more details. 
         
@@ -101,9 +112,10 @@ class AnnotationProject:
             except:
                 raise ValueError("Invalid reasoning prompt format. Ensure it contains {task_description}, {input} and {output} placeholders.")
         
+
         # generate reasonings
         logging.info("Starting to generate reasoning for entries without existing reasoning.")
-        for entry in data:
+        for entry in tqdm.tqdm(data):
 
             # reasoning already exisits
             if (entry.get("reasoning", None)) and (kwargs.get("overwrite", False) == False):
@@ -112,22 +124,108 @@ class AnnotationProject:
             
             # reasoning doesn't exist
             if entry.get("split") in kwargs.get("split", ["train"]):
-                entry["reasoning"] = model.generate_response([{"role": "user", "content": reasoning_prompt.format(output = entry["output"], input = entry["input"], task_description=task_description)}])
+                entry["reasoning"] = model.generate_response([{"role": "user", "content": reasoning_prompt.format(output = entry["output"], input = entry["input"], task_description=self.task_description)}])
                 self.db.update([entry])
 
+        self.reasoning_available = True
         logging.info("Finished generating reasonings.")
+       
         
         
-    def predict(self, input: any, **kwargs) -> list[str]:
-        # predict on .csv, list..., test_examples...
+    def predict(self, model: Model, input: Optional[Union[list, str, None]] = None, **kwargs) -> list[str]:   
+        """
+        Generate predictions using the provided model, with optional handling for incomplete reasoning data.
 
-        number_demonstrations: int = kwargs.get("number_demonstrations", 3)
+        Args:
+            model: The model to use for generating predictions.
+            input: Input data for the prediction.
+                - None: Uses a validation split for prediction if no input is provided.
+                - list: A list of multiple inputs for batch prediction.
+                - str: A single input for prediction.
+        
+        Kwargs: 
+            reasoning (bool, optional): Whether to include reasoning generation. Defaults to False.
+            number_demonstrations (int, optional): The number of demonstrations to use. Defaults to 3.
+
+        Returns:
+            list[str]: A list of predicted outputs based on the provided input or validation split.
+        """
+        
         reasoning: bool = kwargs.get("reasoning", False)
 
-        # check if reasoning avaiable
+        # handle missing reasoning data
+        if reasoning and not self.reasoning_available:
+            while True:
+                do_reasoning: str = input("Reasoning data is incomplete. Would you like to generate the missing reasonings using the current model? [y/n]: ").strip().lower()
 
-        #else:
-        #    self.generate_reasonings()
+                if do_reasoning in {"y", "n"}:
+                    break
+                else:
+                    print("Invalid input. Please enter 'y' for yes or 'n' for no.")
+
+            if do_reasoning == "y":
+                self.generate_reasonings(model)
+
+        # determine generation logic according to input type
+        if input is None:
+            return self._predict_on_valsplit(model, **kwargs)
+        if isinstance(input, list):
+            return self._predict_list(model, **kwargs)        
+        if isinstance(input, str):
+            return self._predict_single_case(model, input, **kwargs)        
+        raise TypeError("Invalid input type. Expected None, list, or str.")
+
+
+    def _retrieve_k_similar(self, text, k) -> list[dict]:
+        """
+        Retrieves k most similar entries from the db
+        """
+        return self.db.query(text, k)
+    
+
+    def _predict_single_case(self, model: Model, input: str, **kwargs) -> str:
+        """
+        Predicts a single case
+        
+        kwargs:
+            number_demonstrations
+            reasoning
+
+        TODO:
+            Style: JSON/RAW STRING...
+            Repeat Task: YES / NO
+            System Prompt:
+        """
+        
+        conversation: list[dict] = []
+        demonstrations: list[dict] = self._retrieve_k_similar(input, kwargs.get("number_demonstrations", 3))
+
+        for entry in demonstrations:
+            # user part
+            user: str = ""
+            user += self.task_description + "\n"
+            user += entry["input"] 
+            conversation.append({"role": "user", "content": user})
+
+            # assistant
+            assistant: str = ""
+            if kwargs.get("reasoning", False):
+                assistant += "Thinking: " + entry["reasoning"] + "\n"
+            assistant += assistant["output"]
+            conversation.append({"role": "assistant", "content": assistant})
+
+        user_request: str = ""
+        user_request += self.task_description + "\n"
+        user_request += input
+        conversation.append({"role": "user", "content": user_request})
+
+        return model.generate_response(conversation)
         
 
+    def _predict_on_val_split(self, **kwargs):
+        conv = []
+
+        pass
+
+    def _predict_list(self, **kwargs):
         pass
