@@ -195,7 +195,7 @@ class AnnotationProject:
         return self.db.query(text, k)
     
 
-    def _predict_single_case(self, input: str, **kwargs) -> str:
+    def _predict_single_case(self, input: str, **kwargs) -> list[str]:
         """
         Predicts a single case
         
@@ -232,7 +232,7 @@ class AnnotationProject:
         user_request += input
         conversation.append({"role": "user", "content": user_request})
 
-        return self.config.model.generate_response(conversation)
+        return [self.config.model.generate_response(conversation)]
         
 
     def _predict_on_val_split(self, **kwargs):
@@ -243,6 +243,6 @@ class AnnotationProject:
         annotated_cases: list[str] = []
 
         for input in tqdm.tqdm(inputs):
-            annotated_cases.append(self._predict_single_case(input, **kwargs))
+            annotated_cases.extend(self._predict_single_case(input, **kwargs))
 
         return annotated_cases
