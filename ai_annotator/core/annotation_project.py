@@ -19,7 +19,6 @@ class AnnotationConfig():
         self.implementation = implementation  
 
 
-
 class AnnotationProject:
 
     def __init__(self, path: str, config: Optional[AnnotationConfig] = None, task_description: str = None) -> None:
@@ -27,7 +26,7 @@ class AnnotationProject:
         if not config and not task_description:
             raise ValueError("Either 'config' or 'task_description' must be provided.")
         
-        # config vars
+        # config vars 
         self.config = config if config else AnnotationConfig(task_description = task_description)
 
         # tracking vars
@@ -217,7 +216,7 @@ class AnnotationProject:
         for entry in demonstrations:
             # user part
             user: str = ""
-            user += self.task_description + "\n"
+            user += self.config.task_description + "\n"
             user += entry["input"] 
             conversation.append({"role": "user", "content": user})
 
