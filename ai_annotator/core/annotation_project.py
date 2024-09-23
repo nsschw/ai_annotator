@@ -94,7 +94,7 @@ class AnnotationProject:
 
             entry["reasoning"] = model.generate_response([{"role": "user", "content": reasoning_prompt.format(output = entry["output"], input = entry["input"], task_description=task_description)}])
 
-            self.db.update([data])
+            self.db.update([entry])
         
         
     def predict(self, input: any, **kwargs) -> list[str]:
