@@ -50,19 +50,23 @@ class ChromaDB(DB):
             include=["documents", "metadatas"]
         )
 
-        print(output)
-
         # restructure to fit the projects general structure -> most similar doc first
         data: list[dict] = output["metadatas"]
         for i, example in enumerate(data):
             example["input"] = output["documents"][i]
             example["id"] = output["ids"][i]
-
         return data
     
     
     def update(self, data: list[dict]):        
-        
+    
+        documents: list[str] = [entry.pop("input") for entry in data]
+    
+        if data[0].get("id", None):
+            ids: list = [entry.pop("id") for entry in data]
+        else:
+            raise ValueError("ID field is missing in the data entries")
+    
         self.collection.upsert(
             documents = documents,
             metadatas = data,

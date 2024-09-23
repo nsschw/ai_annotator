@@ -61,7 +61,7 @@ class AnnotationProject:
         logging.info("Successfully added data!")
 
 
-    def generate_reasonings(self, model: Model, **kwargs) -> None:
+    def generate_reasonings(self, model: Model, task_description: str, **kwargs) -> None:
         """
         Idea: Gold Label-induced Reasoning: https://arxiv.org/pdf/2305.02105
         
@@ -70,14 +70,25 @@ class AnnotationProject:
         Takes: model and custom prompt. Custom Prompt needs to have {input} and {output}.
         """
 
-        # check if reasoning is already exisitng
-        
-        # pull existing cases
-        
-        # generate reasoning
-        
-        # upsert db
-        pass
+        # extract data
+        data = self.db.full_extract()
+
+        reasoning_prompt = kwargs.get("reasoning_prompt", None)
+        if reasoning_prompt is None:
+            with open("prompts/gold_label-induced_reasoning.txt", "r") as f:
+                reasoning_prompt = f.read()
+        prompt = task_description + "\n" + reasoning_prompt
+
+        logging.info("Start generating embeddings for entries without.")
+
+        for entry in data:
+            if (entry.get("reasoning", None)) and (kwargs.get("overwrite", False) == False):
+                logging.warning(f"Skipping reasoning for entry with {entry["id"]} as reasoning already exists. Set overwrite = True to regenerate.")
+                continue
+
+            entry["reasoning"] = model.generate_response({"role": "user", "content": prompt.format(output = entry["output"], input = entry["input"])})
+
+        self.db.update(data)
 
         
     def predict(self, input: any, **kwargs) -> list[str]:
