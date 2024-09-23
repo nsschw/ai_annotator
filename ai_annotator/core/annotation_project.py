@@ -92,7 +92,7 @@ class AnnotationProject:
                 logging.warning(f"Skipping reasoning for entry with {entry['id']} as reasoning already exists. Set overwrite = True to regenerate.")
                 continue
 
-            entry["reasoning"] = model.generate_response([{"role": "user", "content": reasoning_prompt.format(output = entry["output"], input = entry["input"])}])
+            entry["reasoning"] = model.generate_response([{"role": "user", "content": reasoning_prompt.format(output = entry["output"], input = entry["input"], task_description=task_description)}])
 
             self.db.update([data])
         
