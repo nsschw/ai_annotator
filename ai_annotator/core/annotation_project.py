@@ -5,21 +5,38 @@ import tqdm
 from typing import Optional, Union
 
 from .database import ChromaDB
-from .models import Model
+from .models import Model, OpenAIModel
+
+class AnnotationConfig():
+    def __init__(
+            self,
+            task_description: str,
+            model: Optional[Model] = None,
+            implementation: str = "ChromaDB") -> None:
+
+        self.task_description = task_description
+        self.model = model if model else OpenAIModel("gpt-4o-mini")
+        self.implementationn = implementation  
+
+
 
 class AnnotationProject:
-    """
-    Class that serves as hub for annotation projects.
-    Connnects database, annotation & embedding models.
-    """
 
-    def __init__(self, path: str, task_description: str, implementation = "ChromaDB") -> None:
+    def __init__(self, path: str, config: Optional[AnnotationConfig] = None, task_description: str = None) -> None:
 
+        if not config and not task_description:
+            raise ValueError("Either 'config' or 'task_description' must be provided.")
+        
+        # config vars
+        self.config = config if config else AnnotationConfig(task_description = task_description)
+
+        # tracking vars
         self.reasoning_available: bool = False
-        self.task_description: str = task_description
-
-        if implementation == "ChromaDB":
+        
+        if self.config.implementation == "ChromaDB":
             self.db = ChromaDB(path)
+        else:
+            raise NotImplementedError(f"The implementation '{self.config.implementation}' is not supported yet.")
 
         logging.info("Database initialized.")
 
@@ -81,12 +98,11 @@ class AnnotationProject:
         logging.info("Successfully added data!")
 
 
-    def generate_reasonings(self, model: Model, reasoning_prompt: str = None, **kwargs) -> None:
+    def generate_reasonings(self, reasoning_prompt: Optional[str] = None, **kwargs) -> None:
         """
         Queries DB to generate gold label-induced reasoning. Refer to https://arxiv.org/pdf/2305.02105 for more details. 
         
         Args:
-            model: An instance of a class with a "generate_response" method.
             task_description: A description of the task for which reasoning is generated.
             reasoning_prompt: A custom prompt containing placeholders {task_description}, {input}, and {output}. 
 
@@ -124,7 +140,7 @@ class AnnotationProject:
             
             # reasoning doesn't exist
             if entry.get("split") in kwargs.get("split", ["train"]):
-                entry["reasoning"] = model.generate_response([{"role": "user", "content": reasoning_prompt.format(output = entry["output"], input = entry["input"], task_description=self.task_description)}])
+                entry["reasoning"] = self.config.model.generate_response([{"role": "user", "content": reasoning_prompt.format(output = entry["output"], input = entry["input"], task_description=self.config.task_description)}])
                 self.db.update([entry])
 
         self.reasoning_available = True
@@ -132,12 +148,11 @@ class AnnotationProject:
        
         
         
-    def predict(self, model: Model, input: Optional[Union[list, str, None]] = None, **kwargs) -> list[str]:   
+    def predict(self, input: Optional[Union[list, str, None]] = None, **kwargs) -> list[str]:   
         """
         Generate predictions using the provided model, with optional handling for incomplete reasoning data.
 
         Args:
-            model: The model to use for generating predictions.
             input: Input data for the prediction.
                 - None: Uses a validation split for prediction if no input is provided.
                 - list: A list of multiple inputs for batch prediction.
@@ -164,26 +179,26 @@ class AnnotationProject:
                     print("Invalid input. Please enter 'y' for yes or 'n' for no.")
 
             if do_reasoning == "y":
-                self.generate_reasonings(model)
+                self.generate_reasonings(self.config.model)
 
         # determine generation logic according to input type
         if input is None:
-            return self._predict_on_valsplit(model, **kwargs)
+            return self._predict_on_valsplit(**kwargs)
         if isinstance(input, list):
-            return self._predict_list(model, **kwargs)        
+            return self._predict_list(**kwargs)        
         if isinstance(input, str):
-            return self._predict_single_case(model, input, **kwargs)        
+            return self._predict_single_case(input, **kwargs)        
         raise TypeError("Invalid input type. Expected None, list, or str.")
 
 
-    def _retrieve_k_similar(self, text, k) -> list[dict]:
+    def _retrieve_k_similar(self, text: str, k: int) -> list[dict]:
         """
         Retrieves k most similar entries from the db
         """
         return self.db.query(text, k)
     
 
-    def _predict_single_case(self, model: Model, input: str, **kwargs) -> str:
+    def _predict_single_case(self, input: str, **kwargs) -> str:
         """
         Predicts a single case
         
@@ -195,6 +210,7 @@ class AnnotationProject:
             Style: JSON/RAW STRING...
             Repeat Task: YES / NO
             System Prompt:
+            Redo if not valid JSON
         """
         
         conversation: list[dict] = []
@@ -219,13 +235,15 @@ class AnnotationProject:
         user_request += input
         conversation.append({"role": "user", "content": user_request})
 
-        return model.generate_response(conversation)
+        return self.config.model.generate_response(conversation)
         
-
     def _predict_on_val_split(self, **kwargs):
-        conv = []
-
         pass
 
-    def _predict_list(self, **kwargs):
-        pass
+    def _predict_list(self, inputs: list[str], **kwargs) -> list[str]:
+        annotated_cases: list[str] = []
+
+        for input in tqdm.tqdm(inputs):
+            annotated_cases.append(self._predict_single_case(input, **kwargs))
+
+        return annotated_cases
