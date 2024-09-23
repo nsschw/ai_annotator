@@ -7,9 +7,8 @@ from .models import Model
 
 class AnnotationProject:
     """
-    Class that serves as hub for annotation projects
-    Connnects database, annotation model & embedding model    
-    
+    Class that serves as hub for annotation projects.
+    Connnects database, annotation & embedding models.
     """
 
     def __init__(self, path: str, implementation = "ChromaDB") -> None:
@@ -21,11 +20,21 @@ class AnnotationProject:
 
         
     def add_data_from_csv(self, path: str, column_mapping: dict = {}, **kwargs) -> None:
+        """"
+        Reads a CSV file and adds its data to the database.
+        This function reads data from a CSV file specified by the `path` parameter,
+        maps the columns according to the `column_mapping` dictionary, and inserts
+        the data into the database. 
+        
+        Args:
+            path: The file path to the CSV file to be read.
+            column_mapping: dictionary mapping the default column names to the CSV column names. 
+                            Change value the according column name.
+        
+        Returns: 
+            None
         """
-        - input and output are needed
-        - split = training (default) 
-        - id, reasoning optional
-        """
+       
 
         # handle column mapping
         default_column_mapping = {"id": "id", "input":"input", "output": "output", "reasoning": "reasoning", "split": "split"}
@@ -63,12 +72,20 @@ class AnnotationProject:
 
     def generate_reasonings(self, model: Model, task_description: str, reasoning_prompt: str = None, **kwargs) -> None:
         """
-        Idea: Gold Label-induced Reasoning: https://arxiv.org/pdf/2305.02105
+        Queries DB to generate gold label-induced reasoning. Refer to https://arxiv.org/pdf/2305.02105 for more details. 
         
-        Generates reasoning on the train split to have higher quality demonstrations
- 
-        Takes: model and custom prompt. Custom Prompt needs to have {task_description}, {input} and {output}.
-        """      
+        Args:
+            model: An instance of a class with a "generate_response" method.
+            task_description: A description of the task for which reasoning is generated.
+            reasoning_prompt: A custom prompt containing placeholders {task_description}, {input}, and {output}. 
+
+        Kwargs:
+            split: A list of splits to generate reasoning for. Default is ["train"]. 
+            overwrite: A boolean indicating whether to overwrite existing reasoning. Default is False.
+
+        Returns:
+            None
+        """
 
         # extract data
         data = self.db.full_extract()
@@ -87,12 +104,16 @@ class AnnotationProject:
         # generate reasonings
         logging.info("Starting to generate reasoning for entries without existing reasoning.")
         for entry in data:
+
+            # reasoning already exisits
             if (entry.get("reasoning", None)) and (kwargs.get("overwrite", False) == False):
                 logging.warning(f"Skipping reasoning for entry with ID {entry['id']} because reasoning already exists. Set overwrite=True to regenerate.")
                 continue
-
-            entry["reasoning"] = model.generate_response([{"role": "user", "content": reasoning_prompt.format(output = entry["output"], input = entry["input"], task_description=task_description)}])
-            self.db.update([entry])
+            
+            # reasoning doesn't exist
+            if entry.get("split") in kwargs.get("split", ["train"]):
+                entry["reasoning"] = model.generate_response([{"role": "user", "content": reasoning_prompt.format(output = entry["output"], input = entry["input"], task_description=task_description)}])
+                self.db.update([entry])
 
         logging.info("Finished generating reasonings.")
         
