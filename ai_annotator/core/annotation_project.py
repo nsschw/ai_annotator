@@ -182,7 +182,7 @@ class AnnotationProject:
         if input is None:
             return self._predict_on_valsplit(**kwargs)
         if isinstance(input, list):
-            return self._predict_list(**kwargs)        
+            return self._predict_list(input, **kwargs)        
         if isinstance(input, str):
             return self._predict_single_case(input, **kwargs)        
         raise TypeError("Invalid input type. Expected None, list, or str.")
