@@ -16,7 +16,7 @@ class AnnotationConfig():
 
         self.task_description = task_description
         self.model = model if model else OpenAIModel("gpt-4o-mini")
-        self.implementationn = implementation  
+        self.implementation = implementation  
 
 
 
@@ -57,7 +57,6 @@ class AnnotationProject:
             None
         """
        
-
         # handle column mapping
         default_column_mapping = {"id": "id", "input":"input", "output": "output", "reasoning": "reasoning", "split": "split"}
         default_column_mapping.update(column_mapping)
@@ -146,7 +145,6 @@ class AnnotationProject:
         self.reasoning_available = True
         logging.info("Finished generating reasonings.")
        
-        
         
     def predict(self, input: Optional[Union[list, str, None]] = None, **kwargs) -> list[str]:   
         """
@@ -237,8 +235,10 @@ class AnnotationProject:
 
         return self.config.model.generate_response(conversation)
         
+
     def _predict_on_val_split(self, **kwargs):
         pass
+
 
     def _predict_list(self, inputs: list[str], **kwargs) -> list[str]:
         annotated_cases: list[str] = []
