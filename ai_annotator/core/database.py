@@ -46,6 +46,16 @@ class ChromaDB(DB):
         )
     
     def full_extract(self) -> list[dict]:
+        """
+        Exports all relevant data (metadata and document)
+
+        Returns:
+            A list of dicts
+        TODO:
+            Option to pull specific splits
+        """
+
+
         output = self.collection.get(
             include=["documents", "metadatas"]
         )
@@ -58,8 +68,7 @@ class ChromaDB(DB):
         return data
     
     
-    def update(self, data: list[dict]):        
-    
+    def update(self, data: list[dict]):    
         documents: list[str] = [entry.pop("input") for entry in data]
     
         if data[0].get("id", None):
@@ -75,6 +84,16 @@ class ChromaDB(DB):
 
 
     def query(self, text: str, k = 3, **kwargs) -> list[dict]: 
+        """
+        Queries the DB for k similar entries using the embeddings.
+        
+        Args:
+            text: String that should be comparable to the entries in the db
+            k: Amount of similar cases
+
+        TODO:
+            split: Choose split(s) to query
+        """
         query_results = self.collection.query(
                 query_texts=[text],
                 n_results=k,
@@ -91,6 +110,9 @@ class ChromaDB(DB):
 
     @staticmethod
     def transfer_to_collection():
-        """Transfers metaadata and documents to a new collection where a different emb function can be used        
+        """
+        Transfers metaadata and documents to a new collection where a different emb function can be used        
+
+        
         """
         pass
