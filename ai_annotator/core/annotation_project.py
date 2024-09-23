@@ -75,7 +75,7 @@ class AnnotationProject:
         # set up prompt
         if reasoning_prompt is None:
             logging.warning("No reasoning prompt was given. Falling back to default prompt")
-            with open("prompts/gold_label-induced_reasoning.txt", "r") as f:
+            with open("ai_annotator/prompts/gold_label-induced_reasoning.txt", "r") as f:
                 reasoning_prompt = f.read()
         else:
             try:
@@ -91,10 +91,10 @@ class AnnotationProject:
                 logging.warning(f"Skipping reasoning for entry with {entry['id']} as reasoning already exists. Set overwrite = True to regenerate.")
                 continue
 
-            entry["reasoning"] = model.generate_response({"role": "user", "content": prompt.format(output = entry["output"], input = entry["input"])})
+            entry["reasoning"] = model.generate_response([{"role": "user", "content": prompt.format(output = entry["output"], input = entry["input"])}])
 
         self.db.update(data)
-
+        
         
     def predict(self, input: any, **kwargs) -> list[str]:
         # predict on .csv, list..., test_examples...
