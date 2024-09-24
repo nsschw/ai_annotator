@@ -50,6 +50,7 @@ class AnnotationConfig():
             self.annotation_model = annotation_model or OpenAIModel("gpt-4o-mini")
 
 
+
 class AnnotationProject:
 
     def __init__(self,
@@ -58,8 +59,8 @@ class AnnotationProject:
                 config: Optional[AnnotationConfig] = None
                 ) -> None:
         """
-        Kwargs
-            collection_name: set collection name if multiple projects should be stored in the same db.
+        It is recommended to pass an AnnotationConfig, but the project can also be initialized using db_path and task_description,
+        defaulting to standard models if necessary.
         """
 
         if not config and not task_description:
@@ -165,7 +166,7 @@ class AnnotationProject:
             
             # reasoning doesn't exist
             if entry.get("split") in kwargs.get("split", ["train"]):
-                entry["reasoning"] = self.config.model.generate([{"role": "user", "content": reasoning_prompt.format(output = entry["output"], input = entry["input"], task_description=self.config.task_description)}])
+                entry["reasoning"] = self.config.reasoning_model.generate([{"role": "user", "content": reasoning_prompt.format(output = entry["output"], input = entry["input"], task_description=self.config.task_description)}])
                 self.db.update([entry])
 
         self.reasoning_available = True
@@ -256,7 +257,7 @@ class AnnotationProject:
         user_request += input
         conversation.append({"role": "user", "content": user_request})
 
-        return [self.config.model.generate(conversation)]
+        return [self.config.annotation_model.generate(conversation)]
         
 
     def _predict_list(self, inputs: list[str], **kwargs) -> list[str]:
