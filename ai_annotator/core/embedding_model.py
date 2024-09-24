@@ -25,7 +25,8 @@ class HuggingFaceEmbeddingModel(EmbeddingModel):
         self.instruction = instruction
 
     def generate(self, documents: list[str]):
-        return self.model.encode(documents, prompt=self.instruction)
+        embeddings = self.model.encode(documents, prompt=self.instruction)
+        return [e.tolist() for e in embeddings]
     
     def __call__(self, input: list[str]):
         return self.generate(input)
