@@ -1,4 +1,3 @@
-import logging
 import abc
 from openai import OpenAI
 import pydantic

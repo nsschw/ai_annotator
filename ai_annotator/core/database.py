@@ -1,9 +1,5 @@
-import numpy as np
 import chromadb
-from .embedding_model import EmbeddingModel
-from .annotation_project import AnnotationConfig
-
-from typing import Optional
+from .config import AnnotationConfig
 import logging
 import abc
 
@@ -63,7 +59,7 @@ class ChromaDB(DB):
             ids = ids
         )
     
-    
+
     def full_extraction(self) -> list[dict]:
         """
         Exports all relevant data (metadata and document)
