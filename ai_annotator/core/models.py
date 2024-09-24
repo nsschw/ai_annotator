@@ -7,7 +7,7 @@ import pydantic
 class Model(abc.ABC):
 
     @abc.abstractmethod
-    def generate_response(conv:list[dict]):
+    def generate(conv:list[dict]):
         """
         Takes the commonly used input format ([{"role": "user", "content": "xyz"}) and returns only the generated output
         """
@@ -20,7 +20,7 @@ class OpenAIModel(Model):
         self.model: str = model
         self.name = kwargs.get("model_name", f"OpenAI_{model}")
     
-    def generate_response(self, conv: list[dict]) -> str:
+    def generate(self, conv: list[dict]) -> str:
         response = self.client.chat.completions.create(
             model=self.model,
             messages=conv
