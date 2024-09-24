@@ -1,6 +1,7 @@
 import numpy as np
 import chromadb
 from .embedding_model import EmbeddingModel
+from .annotation_project import AnnotationConfig
 
 from typing import Optional
 import logging
@@ -26,14 +27,15 @@ class DB(abc.ABC):
 
 class ChromaDB(DB):    
 
-    def __init__(self, path: str, embedding_model: Optional[EmbeddingModel] = None, **kwargs) -> None:
-        self.client = chromadb.PersistentClient(path=path)
-        self.collection_name : str = kwargs.get("collection_name", "Demo")
-
-        if not embedding_model:
-            self.collection = self.client.get_or_create_collection(self.collection_name)
+    def __init__(self, config: AnnotationConfig) -> None:
+        self.client = chromadb.PersistentClient(path=config.db_path)
+        
+        if not config.embedding_model:
+            self.collection = self.client.get_or_create_collection(config.collection_name)
+            logging.warning("No embedding_model passed. Defaulting to ChromaDB's default model: 'all-MiniLM-L6-v2'")
         else:
-            self.collection = self.client.get_or_create_collection(self.collection_name,  embedding_function=embedding_model)
+            self.collection = self.client.get_or_create_collection(config.collection_name,  embedding_function=config.embedding_model)
+
 
     def insert_data(self, data: list[dict]) -> None:
         """
@@ -60,6 +62,7 @@ class ChromaDB(DB):
             metadatas = data,
             ids = ids
         )
+    
     
     def full_extraction(self) -> list[dict]:
         """

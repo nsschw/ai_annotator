@@ -10,41 +10,70 @@ from .embedding_model import EmbeddingModel
 
 class AnnotationConfig():
     """
-    AnnotationConfig keeps variables that can (not necessarily should) be changed during a project without breaking the system.
+    AnnotationConfig keeps variables that are set during the project initialization and should remain constant throughout the project.
     """
     def __init__(
             self,
+            db_path: str,
             task_description: str,
             model: Optional[Model] = None,
+            reasoning_model: Optional[Model] = None,
+            annotation_model: Optional[Model] = None,
+            embedding_model: Optional[EmbeddingModel] = None,
+            **kwargs
             ) -> None:
+        """
+        Kwargs:
+            collection_name (str): Name of the collection to use if multiple collections are stored in the database.
+        """
 
         self.task_description = task_description
-    
-        if not model:
-            self.model = OpenAIModel("gpt-4o-mini")
-            logging.warning("No model provided. Defaulting to GPT-4o-Mini. Ensure your OPENAI_API_KEY is set.")
+
+        # for db
+        self.embedding_model = embedding_model
+        self.db_path = db_path
+        self.collection_name = kwargs.get("collection_name", "Demo")
+
+        if model:
+            # If a general model is provided, use it for both reasoning and annotation
+            self.reasoning_model = model
+            self.annotation_model = model
+        
+        elif reasoning_model and annotation_model:
+            # If both reasoning and annotation models are provided, use them
+            self.reasoning_model = reasoning_model
+            self.annotation_model = annotation_model
+            
         else:
-            self.model = model
+            logging.warning("Neither a general model nor both specific reasoning and annotation models were provided. Defaulting to OpenAIModel 'gpt-4o-mini' for the missing ones. Make sure to set your OPENAI_API_KEY")
+            self.reasoning_model = reasoning_model or OpenAIModel("gpt-4o-mini")
+            self.annotation_model = annotation_model or OpenAIModel("gpt-4o-mini")
 
 
 class AnnotationProject:
 
-    def __init__(self, db_path: str, config: Optional[AnnotationConfig] = None, task_description: str = None, embedding_model: Optional[EmbeddingModel] = None, **kwargs) -> None:
+    def __init__(self,
+                db_path: str = None,
+                task_description: str = None,
+                config: Optional[AnnotationConfig] = None
+                ) -> None:
+        """
+        Kwargs
+            collection_name: set collection name if multiple projects should be stored in the same db.
+        """
 
         if not config and not task_description:
             raise ValueError("Either 'config' or 'task_description' must be provided.")
+        if not db_path and not task_description:
+            raise ValueError("Either 'config' or 'db_path' must be provided.")
         
         # config vars 
-        self.config = config if config else AnnotationConfig(task_description = task_description)
+        self.config = config or AnnotationConfig(task_description = task_description, db_path=db_path)
 
         # tracking vars
-        self.reasoning_available: bool = False
+        self.reasoning_available: bool = False        
         
-        if not embedding_model:
-            logging.warning("No embedding model provided. Defaulting to ChromaDB's default model 'all-MiniLM-L6-v2'.")
-            self.db = ChromaDB(path = db_path, **kwargs) # Chroma uses all-MiniLM-L6-v2 as default
-        else:
-            self.db = ChromaDB(path = db_path, embedding_model = embedding_model, **kwargs)
+        self.db = ChromaDB(self.config)        
         logging.info("Database initialized.")
 
         
