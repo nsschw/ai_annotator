@@ -5,8 +5,8 @@ import tqdm
 from typing import Optional, Union
 
 from .database import ChromaDB
-from .models import Model, OpenAIModel
-from .embedding_models import EmbeddingModel
+from .model import Model, OpenAIModel
+from .embedding_model import EmbeddingModel
 
 class AnnotationConfig():
     """
