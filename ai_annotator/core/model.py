@@ -2,7 +2,7 @@ import logging
 import abc
 from openai import OpenAI
 import pydantic
-
+import ollama
 
 class Model(abc.ABC):
 
@@ -11,6 +11,17 @@ class Model(abc.ABC):
         """
         Takes the commonly used input format ([{"role": "user", "content": "xyz"}) and returns only the generated output
         """
+
+
+class OllamaModel(Model):
+    def __init__(self, model, host):
+        self.client = ollama.Client(host = host)
+        self.model = model
+        self.client.pull(model)
+    
+    def generate(self, conv: list[dict]) -> str:
+        response: str = self.client.chat(model=self.model, messages=conv)
+        return response["message"]["content"]
 
 
 class OpenAIModel(Model):
