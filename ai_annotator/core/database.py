@@ -1,6 +1,8 @@
 import numpy as np
 import chromadb
+from .embedding_models import EmbeddingModel, HugggingFaceModel
 
+from typing import Optional
 import logging
 import abc
 
@@ -24,13 +26,25 @@ class DB(abc.ABC):
 
 class ChromaDB(DB):    
 
-    def __init__(self, path: str, **kwargs) -> None:
+    def __init__(self, path: str, embedding_model: Optional[EmbeddingModel] = None, **kwargs) -> None:
         self.client = chromadb.PersistentClient(path=path)
         self.collection_name : str = kwargs.get("collection_name", "Demo")
-        self.collection = self.client.get_or_create_collection(self.collection_name)
+
+        if kwargs.get("embedding_function", None):
+            self.collection = self.client.get_or_create_collection(self.collection_name, embedding_function=embedding_model) 
 
     def insert_data(self, data: list[dict]) -> None:
-        # chromadb automatically tokenizes & vectorizes the documents
+        """
+        Inserts a list of data entries into the database collection.
+        
+        Args:
+            data: A list of dictionaries where each dictionary represents a data entry.
+        
+        Notes:
+            - The "input" key in each dictionary is used as the document content and is automatically tokenized and vectorized.
+            - If the "id" key is not provided in the dictionaries, a warning is logged and the index of the entry is used as the ID.
+        """
+
         documents: list[str] = [entry.pop("input") for entry in data]
 
         if data[0].get("id", None):
@@ -45,16 +59,13 @@ class ChromaDB(DB):
             ids = ids
         )
     
-    def full_extract(self) -> list[dict]:
+    def full_extraction(self) -> list[dict]:
         """
         Exports all relevant data (metadata and document)
 
         Returns:
             A list of dicts
-        TODO:
-            Option to pull specific splits
         """
-
 
         output = self.collection.get(
             include=["documents", "metadatas"]
@@ -68,7 +79,20 @@ class ChromaDB(DB):
         return data
     
     
-    def update(self, data: list[dict]):    
+    def update(self, data: list[dict]):
+        """
+        Updates the collection with the provided data.
+        Args:
+            data: A list of dictionaries where each dictionary represents a document to be updated.
+        
+        Example:
+            data = [
+                {"input": "Document content 1", "id": "doc1", "metadata_key": "value1"},
+                {"input": "Document content 2", "id": "doc2", "metadata_key": "value2"}
+            ]
+            update(data)
+        """
+
         documents: list[str] = [entry.pop("input") for entry in data]
     
         if data[0].get("id", None):
@@ -83,21 +107,19 @@ class ChromaDB(DB):
         )
 
 
-    def query(self, text: str, k = 3, **kwargs) -> list[dict]: 
+    def query(self, text: str, k = 3, split = "train") -> list[dict]: 
         """
         Queries the DB for k similar entries using the embeddings.
         
         Args:
             text: String that should be comparable to the entries in the db
             k: Amount of similar cases
-
-        TODO:
-            split: Choose split(s) to query
+            split: Split to query
         """
         query_results = self.collection.query(
                 query_texts=[text],
                 n_results=k,
-                where={"split": "train"},
+                where={"split": split},
             )
         
         # restructure to fit the projects general structure -> most similar doc first
@@ -106,13 +128,3 @@ class ChromaDB(DB):
         for i, example in enumerate(data):
             example["input"] = query_results["documents"][0][i]
         return data
-    
-
-    @staticmethod
-    def transfer_to_collection():
-        """
-        Transfers metaadata and documents to a new collection where a different emb function can be used        
-
-        
-        """
-        pass
