@@ -41,6 +41,7 @@ class AnnotationProject:
         self.reasoning_available: bool = False
         
         if not embedding_model:
+            logging.warning("No embedding model provided. Defaulting to ChromaDB's default model 'all-MiniLM-L6-v2'.")
             self.db = ChromaDB(path = db_path, **kwargs) # Chroma uses all-MiniLM-L6-v2 as default
         else:
             self.db = ChromaDB(path = db_path, embedding_model = embedding_model, **kwargs)

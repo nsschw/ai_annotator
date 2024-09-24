@@ -31,9 +31,9 @@ class ChromaDB(DB):
         self.collection_name : str = kwargs.get("collection_name", "Demo")
 
         if not embedding_model:
-            self.collection = self.client.get_or_create_collection(self.collection_name, embedding_function=embedding_model)
-        else:
             self.collection = self.client.get_or_create_collection(self.collection_name)
+        else:
+            self.collection = self.client.get_or_create_collection(self.collection_name,  embedding_function=embedding_model)
 
     def insert_data(self, data: list[dict]) -> None:
         """
