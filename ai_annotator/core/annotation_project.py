@@ -8,15 +8,22 @@ from .database import ChromaDB
 from .models import Model, OpenAIModel
 
 class AnnotationConfig():
+    """
+    AnnotationConfig keeps variables that can (not necessarily should) be changed during a project without breaking the system.
+    """
     def __init__(
             self,
             task_description: str,
             model: Optional[Model] = None,
-            implementation: str = "ChromaDB") -> None:
+            ) -> None:
 
         self.task_description = task_description
-        self.model = model if model else OpenAIModel("gpt-4o-mini")
-        self.implementation = implementation  
+    
+        if not model:
+            self.model = OpenAIModel("gpt-4o-mini")
+            logging.warning("No model provided. Defaulting to GPT-4o-Mini. Ensure your OPENAI_API_KEY is set.")
+        else:
+            self.model = model
 
 
 class AnnotationProject:
@@ -32,28 +39,18 @@ class AnnotationProject:
         # tracking vars
         self.reasoning_available: bool = False
         
-        if self.config.implementation == "ChromaDB":
-            self.db = ChromaDB(path)
-        else:
-            raise NotImplementedError(f"The implementation '{self.config.implementation}' is not supported yet.")
-
+        self.db = ChromaDB(path)
         logging.info("Database initialized.")
 
         
     def add_data_from_csv(self, path: str, column_mapping: dict = {}, **kwargs) -> None:
         """"
         Reads a CSV file and adds its data to the database.
-        This function reads data from a CSV file specified by the `path` parameter,
-        maps the columns according to the `column_mapping` dictionary, and inserts
-        the data into the database. 
-        
+
         Args:
             path: The file path to the CSV file to be read.
             column_mapping: dictionary mapping the default column names to the CSV column names. 
                             Change value the according column name.
-        
-        Returns: 
-            None
         """
        
         # handle column mapping
@@ -107,9 +104,6 @@ class AnnotationProject:
         Kwargs:
             split: A list of splits to generate reasoning for. Default is ["train"]. 
             overwrite: A boolean indicating whether to overwrite existing reasoning. Default is False.
-
-        Returns:
-            None
         """
 
         # extract data
@@ -151,13 +145,13 @@ class AnnotationProject:
 
         Args:
             input: Input data for the prediction.
-                - None: Uses a validation split for prediction if no input is provided.
+                - None: Uses the test split for prediction if no input is provided.
                 - list: A list of multiple inputs for batch prediction.
                 - str: A single input for prediction.
         
         Kwargs: 
-            reasoning (bool, optional): Whether to include reasoning generation. Defaults to False.
-            number_demonstrations (int, optional): The number of demonstrations to use. Defaults to 3.
+            use_reasoning (bool): Whether to include reasoning generation. Defaults to False.
+            number_demonstrations (int): The number of demonstrations to use. Defaults to 3.
 
         Returns:
             list[str]: A list of predicted outputs based on the provided input or validation split.
@@ -220,7 +214,7 @@ class AnnotationProject:
 
             # assistant
             assistant: str = ""
-            if kwargs.get("reasoning", False):
+            if kwargs.get("use_reasoning", False):
                 assistant += "Evaluation: " + entry["reasoning"] + "\n"
             assistant += entry["output"]
             conversation.append({"role": "assistant", "content": assistant})
