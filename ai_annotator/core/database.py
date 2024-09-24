@@ -1,6 +1,6 @@
 import numpy as np
 import chromadb
-from .embedding_models import EmbeddingModel
+from .embedding_model import EmbeddingModel
 
 from typing import Optional
 import logging
@@ -30,8 +30,10 @@ class ChromaDB(DB):
         self.client = chromadb.PersistentClient(path=path)
         self.collection_name : str = kwargs.get("collection_name", "Demo")
 
-        if kwargs.get("embedding_function", None):
-            self.collection = self.client.get_or_create_collection(self.collection_name, embedding_function=embedding_model) 
+        if kwargs.get("embedding_model", None):
+            self.collection = self.client.get_or_create_collection(self.collection_name, embedding_function=embedding_model)
+        else:
+            self.collection = self.client.get_or_create_collection(self.collection_name)
 
     def insert_data(self, data: list[dict]) -> None:
         """
