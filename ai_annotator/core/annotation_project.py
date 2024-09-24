@@ -6,6 +6,7 @@ from typing import Optional, Union
 
 from .database import ChromaDB
 from .models import Model, OpenAIModel
+from .embedding_models import EmbeddingModel, HugggingFaceModel
 
 class AnnotationConfig():
     """
@@ -28,7 +29,7 @@ class AnnotationConfig():
 
 class AnnotationProject:
 
-    def __init__(self, path: str, config: Optional[AnnotationConfig] = None, task_description: str = None) -> None:
+    def __init__(self, path: str, config: Optional[AnnotationConfig] = None, task_description: str = None, embedding_model: Optional[EmbeddingModel] = None) -> None:
 
         if not config and not task_description:
             raise ValueError("Either 'config' or 'task_description' must be provided.")
@@ -39,7 +40,10 @@ class AnnotationProject:
         # tracking vars
         self.reasoning_available: bool = False
         
-        self.db = ChromaDB(path)
+        if not embedding_model:
+            self.db = ChromaDB(path = path) # Chroma uses all-MiniLM-L6-v2 as default
+        else:
+            self.db = ChromaDB(path = path, embedding_model = embedding_model)
         logging.info("Database initialized.")
 
         
@@ -65,22 +69,22 @@ class AnnotationProject:
         id_available: bool = df_import.to_dict("records")[0].get(column_mapping["id"], False)
 
         for idx, row in df_import.iterrows():
-            record: dict = {}
+            entry: dict = {}
 
             # needed
-            record["input"] = row.get(column_mapping["input"], KeyError)
-            record["output"] = row.get(column_mapping["output"], KeyError)
+            entry["input"] = row.get(column_mapping["input"], KeyError)
+            entry["output"] = row.get(column_mapping["output"], KeyError)
 
             # default
-            record["split"] = row.get(column_mapping["split"], "train")
+            entry["split"] = row.get(column_mapping["split"], "train")
 
             # optional
             if reasoning_available:
-                record["reasoning"] = row.get(column_mapping["reasoning"], None)
+                entry["reasoning"] = row.get(column_mapping["reasoning"], None)
             if id_available:
-                record["id"] = row.get(column_mapping["id"], None)
+                entry["id"] = row.get(column_mapping["id"], None)
 
-            data.append(record)
+            data.append(entry)
    
 
         self.db.insert_data(data=data)        
@@ -98,7 +102,6 @@ class AnnotationProject:
         Queries DB to generate gold label-induced reasoning. Refer to https://arxiv.org/pdf/2305.02105 for more details. 
         
         Args:
-            task_description: A description of the task for which reasoning is generated.
             reasoning_prompt: A custom prompt containing placeholders {task_description}, {input}, and {output}. 
 
         Kwargs:
@@ -107,7 +110,7 @@ class AnnotationProject:
         """
 
         # extract data
-        data = self.db.full_extract()
+        data = self.db.full_extraction()
 
         # set up prompt
         if reasoning_prompt is None:
@@ -132,7 +135,7 @@ class AnnotationProject:
             
             # reasoning doesn't exist
             if entry.get("split") in kwargs.get("split", ["train"]):
-                entry["reasoning"] = self.config.model.generate_response([{"role": "user", "content": reasoning_prompt.format(output = entry["output"], input = entry["input"], task_description=self.config.task_description)}])
+                entry["reasoning"] = self.config.model.generate([{"role": "user", "content": reasoning_prompt.format(output = entry["output"], input = entry["input"], task_description=self.config.task_description)}])
                 self.db.update([entry])
 
         self.reasoning_available = True
@@ -157,10 +160,10 @@ class AnnotationProject:
             list[str]: A list of predicted outputs based on the provided input or validation split.
         """
         
-        reasoning: bool = kwargs.get("reasoning", False)
+        use_reasoning: bool = kwargs.get("use_reasoning", False)
 
         # handle missing reasoning data
-        if reasoning and not self.reasoning_available:
+        if use_reasoning and not self.reasoning_available:
             while True:
                 do_reasoning: str = input("Reasoning data is incomplete. Would you like to generate the missing reasonings using the current model? [y/n]: ").strip().lower()
                 if do_reasoning in {"y", "n"}:
@@ -182,7 +185,12 @@ class AnnotationProject:
 
     def _retrieve_k_similar(self, text: str, k: int) -> list[dict]:
         """
-        Retrieves k most similar entries from the db
+        Retrieves the top k most similar entries from the database.
+        The returned list is ordered by similarity - beginning with the most similar
+
+        Args:
+            text: The text for which similar entries are to be retrieved.
+            k: The number of similar entries to retrieve.
         """
         return self.db.query(text, k)
     
@@ -192,21 +200,15 @@ class AnnotationProject:
         Predicts a single case
         
         kwargs:
-            number_demonstrations
-            reasoning
-
-        TODO:
-            Style: JSON/RAW STRING...
-            Repeat Task: YES / NO
-            System Prompt:
-            Redo if not valid JSON
+            number_demonstrations: The number of similar entries to retrieve to pass to the model as synthetic conversation.
+            use_reasoning (bool): Whether the model should use the generated reasonings
         """
         
         conversation: list[dict] = []
         demonstrations: list[dict] = self._retrieve_k_similar(input, kwargs.get("number_demonstrations", 3))
 
         for entry in demonstrations:
-            # user part
+            # user
             user: str = ""
             user += self.config.task_description + "\n"
             user += entry["input"] 
@@ -224,17 +226,24 @@ class AnnotationProject:
         user_request += input
         conversation.append({"role": "user", "content": user_request})
 
-        return [self.config.model.generate_response(conversation)]
+        return [self.config.model.generate(conversation)]
         
 
-    def _predict_on_val_split(self, **kwargs):
-        pass
-
-
     def _predict_list(self, inputs: list[str], **kwargs) -> list[str]:
+        """"
+        Predicts annotations for a list of input strings.
+        Args:
+            inputs: A list of input strings to be annotated.
+            **kwargs: Additional keyword arguments to be passed to the prediction function.
+        """
+
         annotated_cases: list[str] = []
 
         for input in tqdm.tqdm(inputs):
             annotated_cases.extend(self._predict_single_case(input, **kwargs))
 
         return annotated_cases
+    
+
+    def _predict_on_val_split(self, **kwargs):
+        pass
