@@ -31,7 +31,7 @@ class AnnotationProject:
         logging.info("Database initialized.")
 
         
-    def add_data_from_csv(self, path: str, column_mapping: dict = {}, **kwargs) -> None:
+    def add_data_from_csv(self, path: str, column_mapping: dict = {}, split: str = "train", **kwargs) -> None:
         """"
         Reads a CSV file and adds its data to the database.
 
@@ -39,6 +39,7 @@ class AnnotationProject:
             path: The file path to the CSV file to be read.
             column_mapping: dictionary mapping the default column names to the CSV column names. 
                             Change value the according column name.
+            split: If the split is not given as a column in the CSV, this value will be used for the entries. 
         """
        
         # handle column mapping
@@ -60,7 +61,7 @@ class AnnotationProject:
             entry["output"] = row.get(column_mapping["output"], KeyError)
 
             # default
-            entry["split"] = row.get(column_mapping["split"], "train")
+            entry["split"] = row.get(column_mapping["split"], split)
 
             # optional
             if reasoning_available:
