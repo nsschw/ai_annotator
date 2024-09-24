@@ -30,7 +30,7 @@ class ChromaDB(DB):
         self.client = chromadb.PersistentClient(path=path)
         self.collection_name : str = kwargs.get("collection_name", "Demo")
 
-        if kwargs.get("embedding_model", None):
+        if not embedding_model:
             self.collection = self.client.get_or_create_collection(self.collection_name, embedding_function=embedding_model)
         else:
             self.collection = self.client.get_or_create_collection(self.collection_name)

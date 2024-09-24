@@ -29,7 +29,7 @@ class AnnotationConfig():
 
 class AnnotationProject:
 
-    def __init__(self, path: str, config: Optional[AnnotationConfig] = None, task_description: str = None, embedding_model: Optional[EmbeddingModel] = None) -> None:
+    def __init__(self, db_path: str, config: Optional[AnnotationConfig] = None, task_description: str = None, embedding_model: Optional[EmbeddingModel] = None, **kwargs) -> None:
 
         if not config and not task_description:
             raise ValueError("Either 'config' or 'task_description' must be provided.")
@@ -41,9 +41,9 @@ class AnnotationProject:
         self.reasoning_available: bool = False
         
         if not embedding_model:
-            self.db = ChromaDB(path = path) # Chroma uses all-MiniLM-L6-v2 as default
+            self.db = ChromaDB(path = db_path, **kwargs) # Chroma uses all-MiniLM-L6-v2 as default
         else:
-            self.db = ChromaDB(path = path, embedding_model = embedding_model)
+            self.db = ChromaDB(path = db_path, embedding_model = embedding_model, **kwargs)
         logging.info("Database initialized.")
 
         
