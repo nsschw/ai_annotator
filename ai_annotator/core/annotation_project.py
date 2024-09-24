@@ -6,7 +6,7 @@ from typing import Optional, Union
 
 from .database import ChromaDB
 from .models import Model, OpenAIModel
-from .embedding_models import EmbeddingModel, HugggingFaceModel
+from .embedding_models import EmbeddingModel
 
 class AnnotationConfig():
     """

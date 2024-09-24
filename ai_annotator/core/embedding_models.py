@@ -15,7 +15,7 @@ class EmbeddingModel(abc.ABC):
         """
 
 
-class HugggingFaceModel(EmbeddingModel):
+class HuggingFaceEmbeddingModel(EmbeddingModel):
     def __init__(self,
                  model_name,
                  instruction: Optional[str] = "Instruct: Given a web search query, retrieve relevant passages that answer the query\nQuery: ",

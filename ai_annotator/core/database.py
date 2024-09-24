@@ -1,6 +1,6 @@
 import numpy as np
 import chromadb
-from .embedding_models import EmbeddingModel, HugggingFaceModel
+from .embedding_models import EmbeddingModel
 
 from typing import Optional
 import logging
