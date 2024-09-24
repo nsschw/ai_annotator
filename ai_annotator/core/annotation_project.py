@@ -18,10 +18,8 @@ class AnnotationProject:
         defaulting to standard models if necessary.
         """
 
-        if not config and not task_description:
-            raise ValueError("Either 'config' or 'task_description' must be provided.")
-        if not db_path and not task_description:
-            raise ValueError("Either 'config' or 'db_path' must be provided.")
+        if (not task_description or not task_description) and not config:
+            raise ValueError("Either 'config' or 'task_description' and 'db_path' must be provided.")
         
         # config vars 
         self.config = config or AnnotationConfig(task_description = task_description, db_path=db_path)
