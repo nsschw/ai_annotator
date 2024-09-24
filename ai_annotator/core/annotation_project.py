@@ -127,7 +127,7 @@ class AnnotationProject:
         logging.info("Finished generating reasoning.")
        
         
-    def predict(self, input: Optional[Union[list, str, None]] = None, **kwargs) -> list[str]:   
+    def predict(self, input_data: Optional[Union[list, str, None]] = None, **kwargs) -> list[str]:   
         """
         Generate predictions using the provided model, with optional handling for incomplete reasoning data.
 
@@ -159,12 +159,12 @@ class AnnotationProject:
                 self.generate_reasoning(self.config.model)
 
         # determine generation logic according to input type
-        if input is None:
+        if input_data is None:
             return self._predict_on_valsplit(**kwargs)
-        if isinstance(input, list):
-            return self._predict_list(input, **kwargs)        
-        if isinstance(input, str):
-            return self._predict_single_case(input, **kwargs)        
+        if isinstance(input_data, list):
+            return self._predict_list(input_data, **kwargs)        
+        if isinstance(input_data, str):
+            return self._predict_single_case(input_data, **kwargs)        
         raise TypeError("Invalid input type. Expected None, list, or str.")
 
 
@@ -180,7 +180,7 @@ class AnnotationProject:
         return self.db.query(text, k)
     
 
-    def _predict_single_case(self, input: str, **kwargs) -> list[str]:
+    def _predict_single_case(self, input_data: str, **kwargs) -> list[str]:
         """
         Predicts a single case
         
@@ -190,7 +190,7 @@ class AnnotationProject:
         """
         
         conversation: list[dict] = []
-        demonstrations: list[dict] = self._retrieve_k_similar(input, kwargs.get("number_demonstrations", 3))
+        demonstrations: list[dict] = self._retrieve_k_similar(input_data, kwargs.get("number_demonstrations", 3))
 
         for entry in demonstrations:
             # user
@@ -208,13 +208,13 @@ class AnnotationProject:
 
         user_request: str = ""
         user_request += self.config.task_description + "\n"
-        user_request += input
+        user_request += input_data
         conversation.append({"role": "user", "content": user_request})
 
         return [self.config.annotation_model.generate(conversation)]
         
 
-    def _predict_list(self, inputs: list[str], **kwargs) -> list[str]:
+    def _predict_list(self, input_data: list[str], **kwargs) -> list[str]:
         """"
         Predicts annotations for a list of input strings.
         Args:
@@ -224,8 +224,8 @@ class AnnotationProject:
 
         annotated_cases: list[str] = []
 
-        for input in tqdm.tqdm(inputs):
-            annotated_cases.extend(self._predict_single_case(input, **kwargs))
+        for entry in tqdm.tqdm(input_data):
+            annotated_cases.extend(self._predict_single_case(entry, **kwargs))
 
         return annotated_cases
     
