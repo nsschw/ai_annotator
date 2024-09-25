@@ -5,7 +5,7 @@ It supports a range of models, including both regular LLMs and embedding models.
 
 
 
-### How to Use
+## How to Use
 
 1. **Import Necessary Modules**  
    Import the relevant classes and functions from `ai_annotator` or other libraries:
@@ -34,7 +34,7 @@ It supports a range of models, including both regular LLMs and embedding models.
    Set up the LLM and embedding models. This example shows how to use both Ollama and Hugging Face models:
    ```python
    model = OllamaModel(host="http://ollama:11434", model="llama3.1:7b")
-   emb_model = HuggingFaceEmbeddingModel("Alibaba-NLP/gae-Qwen2-1.5B-instruct", instruction="Instruct: Given an academic abstract, extract passages...")
+   emb_model = HuggingFaceEmbeddingModel("Alibaba-NLP/gae-Qwen2-1.5B-instruct")
    ```
 
 4. **Set Project Configuration**  
@@ -64,5 +64,5 @@ It supports a range of models, including both regular LLMs and embedding models.
 8. **Run Predictions**  
    Finally, run predictions on the test dataset:
    ```python
-   test_cases = ap.predict(["Test_Case_1"], number_demonstrations=8, use_reasoning=True)
+   test_cases = ap.predict(df_test["Test_Case_1"], number_demonstrations=3, use_reasoning=True)
    ```
