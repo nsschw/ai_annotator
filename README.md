@@ -21,7 +21,7 @@ It supports a range of models, including both LLMs and embedding models. This in
 3. **Installing the package**  
    Install the package using pip:
    ```bash
-   pip install ai-annotator
+   pip install .
    ```
 
 ## How to Use
