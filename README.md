@@ -23,7 +23,7 @@ It supports a range of models, including both LLMs and embedding models. This in
 1. **Import Necessary Modules**  
    Import the relevant classes and functions from `ai_annotator` or other libraries:
    ```python
-   from ai_annotator import AnnotationProject, OllamaModel, HuggingFaceEmbeddingModel, AnnotationConfig
+   from ai_annotator.src import AnnotationProject, OllamaModel, HuggingFaceEmbeddingModel, AnnotationConfig
    ```
 
 2. **Define Your Task**  
