@@ -19,7 +19,7 @@ class AnnotationProject:
         """
 
         if (not task_description or not db_path) and not config:
-            raise ValueError("Either 'config' or 'task_description' and 'db_path' must be provided.")
+            raise ValueError("Either 'config' and 'task_description' or 'db_path' must be provided.")
         
         self.config = config or AnnotationConfig(task_description = task_description, db_path=db_path)
         self.db = ChromaDB(self.config)           
@@ -108,7 +108,6 @@ class AnnotationProject:
         
 
         # generate reasoning
-        logging.info("Starting to generate reasoning for entries without existing reasoning.")
         for entry in tqdm.tqdm(data):
 
             # reasoning already exisits
