@@ -93,3 +93,5 @@ It supports a range of models, including both LLMs and embedding models. This in
 - [ ] Training a simple Peft Model
 
 - [ ] Change to lazy loading of models
+
+- [ ] Discovering the possibility of deploying a [jury](https://arxiv.org/pdf/2404.18796) for the annotation project
