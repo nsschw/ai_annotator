@@ -174,6 +174,13 @@ class AnnotationProject:
             text: The text for which similar entries are to be retrieved.
             k: The number of similar entries to retrieve.
         """
+        
+        if k == 0:
+           return []
+        if k < 0:
+            logging.warning("The value of k is negative. No demonstrations will be retrieved.")
+            return []
+        
         return self.db.query(text, k)
     
 
