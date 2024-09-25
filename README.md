@@ -12,10 +12,16 @@ It supports a range of models, including both LLMs and embedding models. This in
    git clone https://github.com/nsschw/ai_annotator.git
    ```
 
-2. **Installing the package**  
+2. **Move into directory**  
+   Move into the `ai_annotator` directory:
+   ```bash
+   cd ai_annotator
+   ```
+
+3. **Installing the package**  
    Install the package using pip:
    ```bash
-   pip install -e ai-annotator
+   pip install ai-annotator
    ```
 
 ## How to Use
@@ -23,7 +29,7 @@ It supports a range of models, including both LLMs and embedding models. This in
 1. **Import Necessary Modules**  
    Import the relevant classes and functions from `ai_annotator` or other libraries:
    ```python
-   from ai_annotator.src import AnnotationProject, OllamaModel, HuggingFaceEmbeddingModel, AnnotationConfig
+   from ai_annotator import AnnotationProject, OllamaModel, HuggingFaceEmbeddingModel, AnnotationConfig
    ```
 
 2. **Define Your Task**  
@@ -85,3 +91,5 @@ It supports a range of models, including both LLMs and embedding models. This in
 - [ ] Figure out a way to use strucured output (similar to [OpenAI](https://openai.com/index/introducing-structured-outputs-in-the-api/)) for tasks definition, model output, and evaluation.
 
 - [ ] Training a simple Peft Model
+
+- [ ] Change to lazy loading of models
