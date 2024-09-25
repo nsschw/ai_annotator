@@ -4,8 +4,6 @@ import numpy
 from typing import Optional
 from sentence_transformers import SentenceTransformer
 
-
-
 class EmbeddingModel(abc.ABC):
 
     @abc.abstractmethod
