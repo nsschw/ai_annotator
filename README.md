@@ -4,6 +4,19 @@ AI Annotator is primarily designed for prototyping and testing annotation or cla
 It supports a range of models, including both LLMs and embedding models. This includes locally run solutions such as Hugging Face and Ollama, with the flexibility to easily integrate custom models. For a more lightweight setup, API-based options like OpenAI and Mistral are supported, offering a simpler way to get started without the need for local deployment. Standardized task/instruction formats and automated parsing of model outputs are also included.
 
 
+## Installation
+
+1. **Clone the Repository**  
+   Clone the repository to your local machine:
+   ```bash
+   git clone https://github.com/nsschw/ai_annotator.git
+   ```
+
+2. **Installing the package**  
+   Install the package using pip:
+   ```bash
+   pip install -e ai-annotator
+   ```
 
 ## How to Use
 
