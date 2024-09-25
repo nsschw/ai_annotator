@@ -48,5 +48,5 @@ class AnnotationConfig():
 
 class PathConfig:
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    PROMPTS_DIR = os.path.join(BASE_DIR, 'core', 'prompts')
+    PROMPTS_DIR = os.path.join(BASE_DIR, 'prompts')
     GOLD_LABEL_PROMPT = os.path.join(PROMPTS_DIR, 'gold_label-induced_reasoning.txt')
