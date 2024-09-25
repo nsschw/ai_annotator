@@ -24,7 +24,6 @@ It supports a range of models, including both LLMs and embedding models. This in
    Import the relevant classes and functions from `ai_annotator` or other libraries:
    ```python
    from ai_annotator import AnnotationProject, OllamaModel, HuggingFaceEmbeddingModel, AnnotationConfig
-   from ai_annotator.evaluation.parser import parse_first_int
    ```
 
 2. **Define Your Task**  
@@ -77,7 +76,7 @@ It supports a range of models, including both LLMs and embedding models. This in
 8. **Run Predictions**  
    Finally, run predictions on the test dataset:
    ```python
-   test_cases = ap.predict(df_test["Test_Case_1"], number_demonstrations=3, use_reasoning=True)
+   test_cases = ap.predict(["Test_Case_1", "Test_Case_2"...], number_demonstrations=3, use_reasoning=True)
    ```
 
 

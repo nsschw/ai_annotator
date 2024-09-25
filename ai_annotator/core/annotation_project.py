@@ -4,7 +4,7 @@ import tqdm
 from typing import Optional, Union
 
 from .database import ChromaDB
-from .config import AnnotationConfig
+from .config import AnnotationConfig, PathConfig
 
 class AnnotationProject:
 
@@ -98,7 +98,7 @@ class AnnotationProject:
         # set up prompt
         if reasoning_prompt is None:
             logging.warning("Reasoning prompt not provided. Using default prompt instead.")
-            with open("ai_annotator/prompts/gold_label-induced_reasoning.txt", "r") as f:
+            with open(PathConfig.GOLD_LABEL_PROMPT, "r") as f:
                 reasoning_prompt = f.read()
         else:
             try:

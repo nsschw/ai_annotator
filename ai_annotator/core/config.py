@@ -2,6 +2,7 @@ import logging
 from typing import Optional
 from .model import Model, OpenAIModel
 from .embedding_model import EmbeddingModel
+import os
 
 class AnnotationConfig():
     """
@@ -43,3 +44,9 @@ class AnnotationConfig():
             logging.warning("Neither a general model nor both specific reasoning and annotation models were provided. Defaulting to OpenAIModel 'gpt-4o-mini' for the missing ones. Make sure to set your OPENAI_API_KEY")
             self.reasoning_model = reasoning_model or OpenAIModel("gpt-4o-mini")
             self.annotation_model = annotation_model or OpenAIModel("gpt-4o-mini")
+
+
+class PathConfig:
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    PROMPTS_DIR = os.path.join(BASE_DIR, 'core', 'prompts')
+    GOLD_LABEL_PROMPT = os.path.join(PROMPTS_DIR, 'gold_label-induced_reasoning.txt')
