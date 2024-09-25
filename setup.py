@@ -6,7 +6,8 @@ setup(
     description="Tool for rapid testing of LLMs for annotation tasks.",
     author="nsschw",
     author_email="s2nsschw@uni-trier.com",
-    packages=find_packages(),  # Automatically find all packages in your directory
+    package_dir={"": "src"},  # Tell setuptools where to find the package
+    packages=find_packages(where="src"),  # Search for packages in the 'src' directory
     install_requires=[
         "openai",
         "transformers",
@@ -15,6 +16,6 @@ setup(
         "sentence_transformers",
         "pydantic",
         "ollama",
-        "tqdm"
+        "tqdm",
     ],
 )
