@@ -1,5 +1,5 @@
 [project]
-name = "AI_Annotator"
+name = "aI_annotator"
 version = "0.1.2"
 description = "Tool for rapid testing of LLMs for annotation tasks."
 authors = [
