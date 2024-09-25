@@ -18,17 +18,15 @@ class AnnotationProject:
         defaulting to standard models if necessary.
         """
 
-        if (not task_description or not task_description) and not config:
+        if (not task_description or not db_path) and not config:
             raise ValueError("Either 'config' or 'task_description' and 'db_path' must be provided.")
         
-        # config vars 
         self.config = config or AnnotationConfig(task_description = task_description, db_path=db_path)
+        self.db = ChromaDB(self.config)           
+        logging.info("Database initialized.")
 
         # tracking vars
-        self.reasoning_available: bool = False        
-        
-        self.db = ChromaDB(self.config)        
-        logging.info("Database initialized.")
+        self.reasoning_available: bool = False
 
         
     def add_data_from_csv(self, path: str, column_mapping: dict = {}, split: str = "train", **kwargs) -> None:
