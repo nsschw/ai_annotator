@@ -10,8 +10,8 @@ It supports a range of models, including both regular LLMs and embedding models.
 1. **Import Necessary Modules**  
    Import the relevant classes and functions from `ai_annotator` or other libraries:
    ```python
-   from ai_annotator.ai.annotator import AnnotationProject, OllamaModel, HuggingFaceEmbeddingModel, AnnotationConfig
-   from ai_annotator.ai.annotator.evaluation.parser import parse_first_int
+   from ai.annotator import AnnotationProject, OllamaModel, HuggingFaceEmbeddingModel, AnnotationConfig
+   from ai.annotator.evaluation.parser import parse_first_int
    ```
 
 2. **Define Your Task**  
@@ -34,7 +34,7 @@ It supports a range of models, including both regular LLMs and embedding models.
    Set up the LLM and embedding models. This example shows how to use both Ollama and Hugging Face models:
    ```python
    model = OllamaModel(host="http://ollama:11434", model="llama3.1:7b")
-   emb_model = HuggingFaceEmbeddingModel("Alibaba-NLP/gae-Qwen2-1.5B-instruct")
+   emb_model = HuggingFaceEmbeddingModel("Alibaba-NLP/gte-Qwen2-1.5B-instruct")
    ```
 
 4. **Set Project Configuration**  
