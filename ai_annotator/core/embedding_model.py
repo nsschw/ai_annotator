@@ -14,7 +14,6 @@ class EmbeddingModel(abc.ABC):
         Takes a list of documents and returns an array of embeddings
         """
 
-
 class HuggingFaceEmbeddingModel(EmbeddingModel):
     def __init__(self,
                  model_name,

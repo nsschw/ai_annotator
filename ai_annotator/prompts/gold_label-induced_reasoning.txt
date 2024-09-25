@@ -1,2 +1,3 @@
-This was the instruction: {instruction}.
-What are the clues that lead {output} being correct in the document: {input}?
+What are the clues that lead to: [{output}] being correct in the document: [{input}] with the task being: [{task_description}].
+Conclude from the input without revealing that you know the correct output.
+Only answer with a formless reasoning. Don't adhere to the given feedback format (e.g. evaluation and valid).
