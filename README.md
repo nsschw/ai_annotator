@@ -1,5 +1,5 @@
-## LLM Annotation Studio
-LLM Annotation Studio is primarily designed for prototyping and testing annotation or classification tasks using Large Language Models (LLMs). While it doesn't offer extensive functionality or customizability, it provides a streamlined solution for quick experimentation. Additionally, it serves as a wrapper for a Vector Database (currently [ChromaDB](https://github.com/chroma-core/chroma)), making it adaptable for any task that leverages retrieval-augmented generation (RAG).
+## AI Annotator
+AI Annotator is primarily designed for prototyping and testing annotation or classification tasks using Large Language Models (LLMs). While it doesn't offer extensive functionality or customizability, it provides a streamlined solution for quick experimentation. Additionally, it serves as a wrapper for a Vector Database (currently [ChromaDB](https://github.com/chroma-core/chroma)), making it adaptable for any task that leverages retrieval-augmented generation (RAG).
 
 It supports a range of models, including both regular LLMs and embedding models. This includes API-based options like OpenAI and Mistral, as well as locally hosted solutions such as Hugging Face and Ollama, with the possibility to easily integrate custom models. Standardized task/instruction styles and automated parsing of model outputs are also included.
 
@@ -10,8 +10,8 @@ It supports a range of models, including both regular LLMs and embedding models.
 1. **Import Necessary Modules**  
    Import the relevant classes and functions from `ai_annotator` or other libraries:
    ```python
-   from ai.annotator import AnnotationProject, OllamaModel, HuggingFaceEmbeddingModel, AnnotationConfig
-   from ai.annotator.evaluation.parser import parse_first_int
+   from ai_annotator import AnnotationProject, OllamaModel, HuggingFaceEmbeddingModel, AnnotationConfig
+   from ai_annotator.evaluation.parser import parse_first_int
    ```
 
 2. **Define Your Task**  
