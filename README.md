@@ -1,7 +1,7 @@
 ## AI Annotator
-AI Annotator is primarily designed for prototyping and testing annotation or classification tasks using Large Language Models (LLMs). While it doesn't offer extensive functionality or customizability, it provides a streamlined solution for quick experimentation. Additionally, it serves as a wrapper for a Vector Database (currently [ChromaDB](https://github.com/chroma-core/chroma)), making it adaptable for any task that leverages retrieval-augmented generation (RAG).
+AI Annotator is primarily designed for prototyping and testing annotation or classification tasks using Large Language Models (LLMs). While it doesn't offer extensive functionality or customizability, it provides a streamlined solution for quick experimentation. Additionally, it serves as a wrapper for a Vector Database (currently ChromaDB), making it adaptable for any task that leverages retrieval-augmented generation (RAG).
 
-It supports a range of models, including both regular LLMs and embedding models. This includes API-based options like OpenAI and Mistral, as well as locally hosted solutions such as Hugging Face and Ollama, with the possibility to easily integrate custom models. Standardized task/instruction styles and automated parsing of model outputs are also included.
+It supports a range of models, including both LLMs and embedding models. This includes locally run solutions such as Hugging Face and Ollama, with the flexibility to easily integrate custom models. For a more lightweight setup, API-based options like OpenAI and Mistral are supported, offering a simpler way to get started without the need for local deployment. Standardized task/instruction formats and automated parsing of model outputs are also included.
 
 
 
