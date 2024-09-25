@@ -22,5 +22,3 @@ dependencies = [
     "tqdm",
 ]
 
-[tool.setuptools.packages.find]
-where = ["ai_annotator/ai_annotator"]
