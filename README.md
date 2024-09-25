@@ -79,3 +79,10 @@ It supports a range of models, including both LLMs and embedding models. This in
    ```python
    test_cases = ap.predict(df_test["Test_Case_1"], number_demonstrations=3, use_reasoning=True)
    ```
+
+
+## ToDo
+
+- [ ] Figure out a way to use strucured output (similar to [OpenAI](https://openai.com/index/introducing-structured-outputs-in-the-api/)) for tasks definition, model output, and evaluation.
+
+- [ ] Training a simple Peft Model
