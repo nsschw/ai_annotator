@@ -1,6 +1,6 @@
 [project]
 name = "AI_Annotator"
-version = "0.1.1"
+version = "0.1.2"
 description = "Tool for rapid testing of LLMs for annotation tasks."
 authors = [
     { name = "nsschw", email = "s2nsschw@uni-trier.com" }
