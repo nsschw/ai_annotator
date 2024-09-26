@@ -2,6 +2,7 @@ import abc
 from openai import OpenAI
 import pydantic
 import ollama
+import importlib
 
 class Model(abc.ABC):
 
@@ -44,3 +45,27 @@ class OpenAIModel(Model):
             response_format=structure,
         )
         return response.choices[0].message.parsed
+
+class HuggingFaceModel(Model):
+
+    def init(self, model: str, **kwargs):
+
+        # import
+        transformers = importlib.import_module("transformers")
+        self.torch = importlib.import_module("torch")
+
+        # run init
+        self.model = transformers.AutoModelForCausalLM.from_pretrained(model, device_map="auto")
+        self.tokenizer = transformers.AutoTokenizer.from_pretrained(model)
+
+    def generate(self, conv: list[dict]) -> str:
+
+        if conv[0]["role"] == "system":
+            conv = self.tokenizer.apply_chat_template(conv,  tokenize=True, return_tensors="pt", add_generation_prompt=True).to('cuda')
+        else:
+            conv = self.tokenizer.apply_chat_template(conv,  tokenize=True, return_tensors="pt", add_generation_prompt=True).to('cuda')
+
+        with self.torch.no_grad():
+            generated_ids = self.model.generate(conv, temperature = 1, max_new_tokens=200, do_sample=True)[0][conv.shape[-1]:]
+
+        return self.tokenizer.decode(generated_ids, skip_special_tokens=True)
