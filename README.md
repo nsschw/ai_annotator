@@ -97,3 +97,7 @@ It supports a range of models, including both LLMs and embedding models. This in
 - [ ] HP-Tuner for comparing different models
 
 - [ ] Parse JSON Output
+
+- [ ] Enable Model Offloading
+
+- [ ] Enable passing of bnb_config to the hf models
