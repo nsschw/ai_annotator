@@ -48,14 +48,14 @@ class OpenAIModel(Model):
 
 class HuggingFaceModel(Model):
 
-    def __init__(self, model: str):
+    def __init__(self, model: str, bnb_config = None):
 
         # import
         transformers = importlib.import_module("transformers")
         self.torch = importlib.import_module("torch")
 
         # run init
-        self.model = transformers.AutoModelForCausalLM.from_pretrained(model, device_map="auto")
+        self.model = transformers.AutoModelForCausalLM.from_pretrained(model, device_map="auto", quantization_config=bnb_config) if bnb_config else transformers.AutoModelForCausalLM.from_pretrained(model, device_map="auto")
         self.tokenizer = transformers.AutoTokenizer.from_pretrained(model)
 
     def generate(self, conv: list[dict]) -> str:
