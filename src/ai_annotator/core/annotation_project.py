@@ -154,6 +154,8 @@ class AnnotationProject:
                     print("Invalid input. Please enter 'y' for yes or 'n' for no.")
             if do_reasoning == "y":
                 self.generate_reasoning(self.config.model)
+            else:
+                kwargs["use_reasoning"] = False
 
         # determine generation logic according to input type
         if input_data is None:
