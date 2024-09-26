@@ -13,7 +13,9 @@ class EmbeddingModel(abc.ABC):
         Takes a list of documents and returns an array of embeddings
         """
 
+
 class HuggingFaceEmbeddingModel(EmbeddingModel):
+
     def __init__(self,
                  model,
                  instruction: Optional[str] = "Instruct: Given a web search query, retrieve relevant passages that answer the query\nQuery: ",
