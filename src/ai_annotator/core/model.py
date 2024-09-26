@@ -26,10 +26,9 @@ class OllamaModel(Model):
 
 class OpenAIModel(Model):
 
-    def __init__(self, model: str, **kwargs) -> None:
+    def __init__(self, model: str) -> None:
         self.client = OpenAI()
         self.model: str = model
-        self.name = kwargs.get("model_name", f"OpenAI_{model}")
     
     def generate(self, conv: list[dict]) -> str:
         response = self.client.chat.completions.create(
@@ -46,9 +45,10 @@ class OpenAIModel(Model):
         )
         return response.choices[0].message.parsed
 
+
 class HuggingFaceModel(Model):
 
-    def init(self, model: str, **kwargs):
+    def __init__(self, model: str):
 
         # import
         transformers = importlib.import_module("transformers")
