@@ -12,7 +12,7 @@ It supports a range of models, including both LLMs and embedding models. This in
    git clone https://github.com/nsschw/ai_annotator.git
    ```
 
-". **Installing the package**  
+2. **Installing the package**  
    Install the package using pip:
    ```bash
    pip install -e ai_annontator
