@@ -22,7 +22,7 @@ class HuggingFaceEmbeddingModel(EmbeddingModel):
         # import        
         sentence_transformers = importlib.import_module("sentence_transformers")
 
-        # run code
+        # run init
         self.model = sentence_transformers.SentenceTransformer(model_name, trust_remote_code=True)
         self.instruction = instruction
 
