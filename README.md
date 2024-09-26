@@ -12,20 +12,14 @@ It supports a range of models, including both LLMs and embedding models. This in
    git clone https://github.com/nsschw/ai_annotator.git
    ```
 
-2. **Move into directory**  
-   Move into the `ai_annotator` directory:
-   ```bash
-   cd ai_annotator
-   ```
-
-3. **Installing the package**  
+". **Installing the package**  
    Install the package using pip:
    ```bash
-   pip install .
+   pip install -e ai_annontator
    ```
    or if you want to use locally hosted models (Hugging Face and Transformers):
    ```bash
-   pip install .[local]
+   pip install -e ai_annontator[local]
    ```
 
 ## How to Use
