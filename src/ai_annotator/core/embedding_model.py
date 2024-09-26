@@ -2,7 +2,8 @@ import logging
 import abc
 import numpy
 from typing import Optional
-from sentence_transformers import SentenceTransformer
+import importlib
+
 
 class EmbeddingModel(abc.ABC):
 
@@ -17,8 +18,12 @@ class HuggingFaceEmbeddingModel(EmbeddingModel):
                  model_name,
                  instruction: Optional[str] = "Instruct: Given a web search query, retrieve relevant passages that answer the query\nQuery: ",
                 ) -> None:
-        
-        self.model = SentenceTransformer(model_name, trust_remote_code=True)
+
+        # import        
+        sentence_transformers = importlib.import_module("sentence_transformers")
+
+        # run code
+        self.model = sentence_transformers.SentenceTransformer(model_name, trust_remote_code=True)
         self.instruction = instruction
 
     def generate(self, documents: list[str]):
