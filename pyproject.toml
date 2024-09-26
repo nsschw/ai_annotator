@@ -6,21 +6,27 @@ authors = [
     { name = "nsschw", email = "s2nsschw@uni-trier.com" }
 ]
 
-[build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
-
 dependencies = [
     "openai",
-    "transformers",
     "chromadb",
     "pandas",
-    "sentence_transformers",
     "pydantic",
     "ollama",
     "openai",
     "tqdm",
 ]
+
+[project.optional-dependencies]
+local = [
+    "transformers",
+    "sentence_transformers",
+    "tf-keras"
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
 
 [tool.setuptools.packages.find]
 where = ["src"]
