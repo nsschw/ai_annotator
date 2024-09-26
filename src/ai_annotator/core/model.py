@@ -14,6 +14,7 @@ class Model(abc.ABC):
 
 
 class OllamaModel(Model):
+    
     def __init__(self, model, host):
         self.client = ollama.Client(host = host)
         self.model = model
@@ -66,6 +67,6 @@ class HuggingFaceModel(Model):
             conv = self.tokenizer.apply_chat_template(conv,  tokenize=True, return_tensors="pt", add_generation_prompt=True).to('cuda')
 
         with self.torch.no_grad():
-            generated_ids = self.model.generate(conv, temperature = 1, max_new_tokens=200, do_sample=True)[0][conv.shape[-1]:]
+            generated_ids = self.model.generate(conv, temperature = 0.7, do_sample=True)[0][conv.shape[-1]:]
 
         return self.tokenizer.decode(generated_ids, skip_special_tokens=True)
