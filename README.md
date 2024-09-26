@@ -23,6 +23,10 @@ It supports a range of models, including both LLMs and embedding models. This in
    ```bash
    pip install .
    ```
+   or if you only want to use locally hosted models (Hugging Face and Transformers):
+   ```bash
+   pip install .[local]
+   ```
 
 ## How to Use
 
