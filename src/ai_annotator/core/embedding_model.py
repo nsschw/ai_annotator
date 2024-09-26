@@ -15,7 +15,7 @@ class EmbeddingModel(abc.ABC):
 
 class HuggingFaceEmbeddingModel(EmbeddingModel):
     def __init__(self,
-                 model_name,
+                 model,
                  instruction: Optional[str] = "Instruct: Given a web search query, retrieve relevant passages that answer the query\nQuery: ",
                 ) -> None:
 
@@ -23,7 +23,7 @@ class HuggingFaceEmbeddingModel(EmbeddingModel):
         sentence_transformers = importlib.import_module("sentence_transformers")
 
         # run init
-        self.model = sentence_transformers.SentenceTransformer(model_name, trust_remote_code=True)
+        self.model = sentence_transformers.SentenceTransformer(model, trust_remote_code=True)
         self.instruction = instruction
 
     def generate(self, documents: list[str]):
