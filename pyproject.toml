@@ -1,13 +1,13 @@
 [project]
 name = "ai_annotator"
-version = "0.1.2"
+version = "0.1.3"
 description = "Tool for rapid testing of LLMs for annotation tasks."
 authors = [
     { name = "nsschw", email = "s2nsschw@uni-trier.com" }
 ]
 
 [build-system]
-requires = ["setuptools>=42", "wheel"]
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 dependencies = [
@@ -21,3 +21,6 @@ dependencies = [
     "openai",
     "tqdm",
 ]
+
+[tool.setuptools.packages.find]
+where = ["src"]
