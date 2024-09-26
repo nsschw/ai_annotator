@@ -8,6 +8,7 @@ class AnnotationConfig():
     """
     AnnotationConfig keeps variables that are set during the project initialization and should remain constant throughout the project.
     """
+    
     def __init__(
             self,
             db_path: str,
