@@ -1,4 +1,5 @@
 import re
+import json
 
 def parse_first_int(strings: list[str], bos_split_token: str = None, eos_split_token: str = None, default_value: int = None) -> list[int]:
     """
@@ -49,3 +50,25 @@ def parse_list(strings: list[str], bos_split_token: str = None, eos_split_token:
             parsed_lists.append(default_value)
 
     return parsed_lists
+
+
+def parse_json(strings: list[str], default_value: dict = {}) -> list[dict]:
+    """
+    Parses each string in a list as JSON and returns a list of the parsed JSON objects.
+
+    Args:
+        strings: A list of strings to parse.
+        default_value: A default dictionary to return if an error occurs during parsing.
+
+    Note:
+    - Not tested!
+    """
+    parsed_jsons: list[dict] = []
+    for string in strings:
+        try:
+            parsed_json = json.loads(string)
+            parsed_jsons.append(parsed_json)
+        except json.JSONDecodeError:
+            parsed_jsons.append(default_value)
+
+    return parsed_jsons
