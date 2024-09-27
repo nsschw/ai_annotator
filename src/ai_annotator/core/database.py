@@ -61,7 +61,7 @@ class ChromaDB(DB):
         )
     
 
-    def full_extraction(self) -> list[dict]:
+    def full_extraction(self, include_embeddings: bool = False) -> list[dict]:
         """
         Exports all relevant data (metadata and document)
 
@@ -70,7 +70,7 @@ class ChromaDB(DB):
         """
 
         output = self.collection.get(
-            include=["documents", "metadatas"]
+            include=["documents", "metadatas", "embeddings"] if include_embeddings else ["documents", "metadatas"]
         )
 
         # restructure to fit the projects general structure -> most similar doc first
@@ -78,6 +78,7 @@ class ChromaDB(DB):
         for i, record in enumerate(records):
             record["input"] = output["documents"][i]
             record["id"] = output["ids"][i]
+            record["embedding"] = output["embeddings"][i]
         return records
     
     

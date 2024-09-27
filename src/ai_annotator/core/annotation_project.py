@@ -91,6 +91,21 @@ class AnnotationProject:
         logging.info("Successfully added data.")
 
 
+    def to_parquet(self, path: str, include_embeddings: bool = False) -> None:
+        """
+        Exports the database to a parquet file.
+
+        Args:
+            path: The file path to save the parquet file.
+            include_embeddings: Whether to include embeddings in the export.
+        """
+
+        records = self.db.full_extraction(include_embeddings=include_embeddings)
+        df = pd.DataFrame(records)
+        df.to_parquet(path)
+        logging.info("Successfully exported database to parquet.")
+
+
     def generate_reasoning(self, reasoning_prompt: Optional[str] = None, **kwargs) -> None:
         """
         Queries DB to generate gold label-induced reasoning. Refer to https://arxiv.org/pdf/2305.02105 for more details. 
@@ -218,7 +233,7 @@ class AnnotationProject:
             # assistant
             assistant_msg: str = ""
             if kwargs.get("use_reasoning", False):
-                assistant_msg += "Evaluation: " + record["reasoning"] + "\n"
+                assistant_msg += "Reasoning: " + record["reasoning"] + "\n"
             assistant_msg += record["output"]
             conversation.append({"role": "assistant", "content": assistant_msg})
 
