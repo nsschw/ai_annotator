@@ -157,13 +157,13 @@ class AnnotationProject:
         # handle missing reasoning data
         if use_reasoning and not self.reasoning_available:
             while True:
-                do_reasoning: str = input("Reasoning data is incomplete. Would you like to generate the missing reasonings using the current model? [y/n]: ").strip().lower()
+                do_reasoning: str = input("Reasoning data is incomplete. Would you like to generate the missing reasonings? [y/n]: ").strip().lower()
                 if do_reasoning in {"y", "n"}:
                     break
                 else:
                     print("Invalid input. Please enter 'y' for yes or 'n' for no.")
             if do_reasoning == "y":
-                self.generate_reasoning(self.config.model)
+                self.generate_reasoning()
             else:
                 kwargs["use_reasoning"] = False
 
