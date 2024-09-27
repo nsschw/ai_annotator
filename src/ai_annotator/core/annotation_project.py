@@ -7,6 +7,17 @@ from .database import ChromaDB
 from .config import AnnotationConfig, PathConfig
 
 class AnnotationProject:
+    """
+    Hub for the annotation project, handling data import, reasoning generation, and prediction. 
+    The function are made to work with any given model, as long as the model or its wrapper is capable of handling this projects default data format.
+    Default data format (records):
+    [{
+        "input": "input text",
+        "output": "output text",
+        "split": "train",
+        "id": "id"
+    }, ...]
+    """
 
     def __init__(self,
                 db_path: str = None,
@@ -29,7 +40,7 @@ class AnnotationProject:
         self.reasoning_available: bool = False
 
         
-    def add_data_from_csv(self, path: str, column_mapping: dict = {}, split: str = "train", **kwargs) -> None:
+    def add_data_from_csv(self, path: str, column_mapping: dict = {}, default_split: str = "train") -> None:
         """"
         Reads a CSV file and adds its data to the database.
 
@@ -37,7 +48,8 @@ class AnnotationProject:
             path: The file path to the CSV file to be read.
             column_mapping: dictionary mapping the default column names to the CSV column names. 
                             Change value the according column name.
-            split: If the split is not given as a column in the CSV, this value will be used for the entries. 
+            default_split: The default split value for the records. Default is "train".
+            split: If the split is not given as a column in the CSV, this value will be used for the records. 
         """
        
         # handle column mapping
@@ -46,31 +58,30 @@ class AnnotationProject:
         column_mapping = default_column_mapping
 
         df_import : pd.DataFrame = pd.read_csv(path)
-        data : list[dict] = []
+        records: list[dict] = []
 
         reasoning_available: bool = df_import.to_dict("records")[0].get(column_mapping["reasoning"], False)
         id_available: bool = df_import.to_dict("records")[0].get(column_mapping["id"], False)
 
         for idx, row in df_import.iterrows():
-            entry: dict = {}
+            record: dict = {}
 
             # needed
-            entry["input"] = row.get(column_mapping["input"], KeyError)
-            entry["output"] = row.get(column_mapping["output"], KeyError)
+            record["input"] = row.get(column_mapping["input"], KeyError)
+            record["output"] = row.get(column_mapping["output"], KeyError)
 
             # default
-            entry["split"] = row.get(column_mapping["split"], split)
+            record["split"] = row.get(column_mapping["split"], default_split)
 
             # optional
             if reasoning_available:
-                entry["reasoning"] = row.get(column_mapping["reasoning"], None)
+                record["reasoning"] = row.get(column_mapping["reasoning"], None)
             if id_available:
-                entry["id"] = row.get(column_mapping["id"], None)
+                record["id"] = row.get(column_mapping["id"], None)
 
-            data.append(entry)
+            records.append(record)
    
-
-        self.db.insert_data(data=data)        
+        self.db.insert_data(records=records)        
         
         if reasoning_available:
             self.reasoning_available = True
@@ -93,7 +104,7 @@ class AnnotationProject:
         """
 
         # extract data
-        data = self.db.full_extraction()
+        records = self.db.full_extraction()
 
         # set up prompt
         if reasoning_prompt is None:
@@ -106,19 +117,19 @@ class AnnotationProject:
             except:
                 raise ValueError("Invalid reasoning prompt format. Ensure it contains {task_description}, {input} and {output} placeholders.")
         
-
+        
         # generate reasoning
-        for entry in tqdm.tqdm(data):
+        for record in tqdm.tqdm(records):
 
             # reasoning already exisits
-            if (entry.get("reasoning", None)) and (kwargs.get("overwrite", False) == False):
-                logging.warning(f"Skipping reasoning for entry with ID {entry['id']} because reasoning already exists. Set overwrite=True to regenerate.")
+            if (record.get("reasoning", None)) and (kwargs.get("overwrite", False) == False):
+                logging.warning(f"Skipping reasoning for record with ID {record['id']} because reasoning already exists. Set overwrite=True to generate new reasoning")
                 continue
             
             # reasoning doesn't exist
-            if entry.get("split") in kwargs.get("split", ["train"]):
-                entry["reasoning"] = self.config.reasoning_model.generate([{"role": "user", "content": reasoning_prompt.format(output = entry["output"], input = entry["input"], task_description=self.config.task_description)}])
-                self.db.update([entry])
+            if record.get("split") in kwargs.get("split", ["train"]):
+                record["reasoning"] = self.config.reasoning_model.generate([{"role": "user", "content": reasoning_prompt.format(output = record["output"], input = record["input"], task_description=self.config.task_description)}])
+                self.db.update([record])
 
         self.reasoning_available = True
         logging.info("Finished generating reasoning.")
@@ -169,12 +180,12 @@ class AnnotationProject:
 
     def _retrieve_k_similar(self, text: str, k: int) -> list[dict]:
         """
-        Retrieves the top k most similar entries from the database.
+        Retrieves the top k most similar records from the database.
         The returned list is ordered by similarity - beginning with the most similar
 
         Args:
-            text: The text for which similar entries are to be retrieved.
-            k: The number of similar entries to retrieve.
+            text: The text for which similar records are to be retrieved.
+            k: The number of similar records to retrieve.
         """
         
         if k == 0:
@@ -191,26 +202,26 @@ class AnnotationProject:
         Predicts a single case
         
         kwargs:
-            number_demonstrations: The number of similar entries to retrieve to pass to the model as synthetic conversation.
+            number_demonstrations: The number of similar records to retrieve to pass to the model as synthetic conversation.
             use_reasoning (bool): Whether the model should use the generated reasonings
         """
         
         conversation: list[dict] = []
         demonstrations: list[dict] = self._retrieve_k_similar(input_data, kwargs.get("number_demonstrations", 3))
 
-        for entry in demonstrations:
+        for record in demonstrations:
             # user
-            user: str = ""
-            user += self.config.task_description + "\n"
-            user += entry["input"] 
-            conversation.append({"role": "user", "content": user})
+            user_msg: str = ""
+            user_msg += self.config.task_description + "\n"
+            user_msg += record["input"] 
+            conversation.append({"role": "user", "content": user_msg})
 
             # assistant
-            assistant: str = ""
+            assistant_msg: str = ""
             if kwargs.get("use_reasoning", False):
-                assistant += "Evaluation: " + entry["reasoning"] + "\n"
-            assistant += entry["output"]
-            conversation.append({"role": "assistant", "content": assistant})
+                assistant_msg += "Evaluation: " + record["reasoning"] + "\n"
+            assistant_msg += record["output"]
+            conversation.append({"role": "assistant", "content": assistant_msg})
 
         user_request: str = ""
         user_request += self.config.task_description + "\n"
@@ -226,12 +237,15 @@ class AnnotationProject:
         Args:
             inputs: A list of input strings to be annotated.
             **kwargs: Additional keyword arguments to be passed to the prediction function.
+
+        Notes:
+            - Uses the _predict_single_case method until a batch prediction method is implemented.
         """
 
         annotated_cases: list[str] = []
 
-        for entry in tqdm.tqdm(input_data):
-            annotated_cases.extend(self._predict_single_case(entry, **kwargs))
+        for record in tqdm.tqdm(input_data):
+            annotated_cases.extend(self._predict_single_case(record, **kwargs))
 
         return annotated_cases
     

@@ -33,29 +33,29 @@ class ChromaDB(DB):
             self.collection = self.client.get_or_create_collection(config.collection_name,  embedding_function=config.embedding_model)
 
 
-    def insert_data(self, data: list[dict]) -> None:
+    def insert_data(self, records: list[dict]) -> None:
         """
-        Inserts a list of data entries into the database collection.
+        Inserts a list of data records into the database collection.
         
         Args:
-            data: A list of dictionaries where each dictionary represents a data entry.
+            data: A list of dictionaries where each dictionary represents a data record.
         
         Notes:
             - The "input" key in each dictionary is used as the document content and is automatically tokenized and vectorized.
-            - If the "id" key is not provided in the dictionaries, a warning is logged and the index of the entry is used as the ID.
+            - If the "id" key is not provided in the dictionaries, a warning is logged and the index of the record is used as the ID.
         """
 
-        documents: list[str] = [entry.pop("input") for entry in data]
+        documents: list[str] = [record.pop("input") for record in records]
 
-        if data[0].get("id", None):
-            ids: list = [entry.pop("id") for entry in data]
+        if records[0].get("id", None):
+            ids: list = [record.pop("id") for record in records]
         else:
-            ids: list = [f"id{i}" for i in range(len(data))]
+            ids: list = [f"id{i}" for i in range(len(records))]
             logging.warning("No IDs inserted. Using the index as ID")
 
         self.collection.add(
             documents = documents,
-            metadatas = data,
+            metadatas = records,
             ids = ids
         )
     
@@ -73,14 +73,14 @@ class ChromaDB(DB):
         )
 
         # restructure to fit the projects general structure -> most similar doc first
-        data: list[dict] = output["metadatas"]
-        for i, example in enumerate(data):
-            example["input"] = output["documents"][i]
-            example["id"] = output["ids"][i]
-        return data
+        records: list[dict] = output["metadatas"]
+        for i, record in enumerate(records):
+            record["input"] = output["documents"][i]
+            record["id"] = output["ids"][i]
+        return record
     
     
-    def update(self, data: list[dict]):
+    def update(self, records: list[dict]):
         """
         Updates the collection with the provided data.
         Args:
@@ -94,16 +94,16 @@ class ChromaDB(DB):
             update(data)
         """
 
-        documents: list[str] = [entry.pop("input") for entry in data]
+        documents: list[str] = [record.pop("input") for record in records]
     
-        if data[0].get("id", None):
-            ids: list = [entry.pop("id") for entry in data]
+        if records[0].get("id", None):
+            ids: list = [record.pop("id") for record in records]
         else:
             raise ValueError("ID field is missing in the data entries")
     
         self.collection.upsert(
             documents = documents,
-            metadatas = data,
+            metadatas = records,
             ids = ids
         )
 
@@ -124,8 +124,8 @@ class ChromaDB(DB):
             )
         
         # restructure to fit the projects general structure -> most similar doc first
-        data: list[dict] = query_results["metadatas"][0]
+        records: list[dict] = query_results["metadatas"][0]
         
-        for i, example in enumerate(data):
+        for i, example in enumerate(records):
             example["input"] = query_results["documents"][0][i]
-        return data
+        return records
