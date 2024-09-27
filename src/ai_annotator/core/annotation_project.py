@@ -9,7 +9,7 @@ from .config import AnnotationConfig, PathConfig
 class AnnotationProject:
     """
     Hub for the annotation project, handling data import, reasoning generation, and prediction. 
-    The function are made to work with any given model, as long as the model or its wrapper is capable of handling this projects default data format.
+    The functions are made to work with any given model, as long as the model or its wrapper is capable of handling this projects default data format.
     Default data format (records):
     [{
         "input": "input text",
@@ -117,7 +117,6 @@ class AnnotationProject:
             except:
                 raise ValueError("Invalid reasoning prompt format. Ensure it contains {task_description}, {input} and {output} placeholders.")
         
-        records
         # generate reasoning
         for record in tqdm.tqdm(records):
 
