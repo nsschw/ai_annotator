@@ -78,7 +78,8 @@ class ChromaDB(DB):
         for i, record in enumerate(records):
             record["input"] = output["documents"][i]
             record["id"] = output["ids"][i]
-            record["embedding"] = output["embeddings"][i]
+            if include_embeddings:
+                record["embedding"] = output["embeddings"][i]
         return records
     
     
