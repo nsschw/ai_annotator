@@ -5,6 +5,7 @@ import abc
 
 
 class DB(abc.ABC):
+
     @abc.abstractmethod
     def insert_data(self, path: str):
         """
@@ -91,7 +92,6 @@ class ChromaDB(DB):
                 {"input": "Document content 1", "id": "doc1", "metadata_key": "value1"},
                 {"input": "Document content 2", "id": "doc2", "metadata_key": "value2"}
             ]
-            update(records)
         """
 
         documents: list[str] = [record.pop("input") for record in records]
