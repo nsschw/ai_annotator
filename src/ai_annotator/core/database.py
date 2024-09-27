@@ -77,7 +77,7 @@ class ChromaDB(DB):
         for i, record in enumerate(records):
             record["input"] = output["documents"][i]
             record["id"] = output["ids"][i]
-        return record
+        return records
     
     
     def update(self, records: list[dict]):
@@ -87,11 +87,11 @@ class ChromaDB(DB):
             data: A list of dictionaries where each dictionary represents a document to be updated.
         
         Example:
-            data = [
+            records = [
                 {"input": "Document content 1", "id": "doc1", "metadata_key": "value1"},
                 {"input": "Document content 2", "id": "doc2", "metadata_key": "value2"}
             ]
-            update(data)
+            update(records)
         """
 
         documents: list[str] = [record.pop("input") for record in records]

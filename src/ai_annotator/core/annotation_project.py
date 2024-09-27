@@ -117,7 +117,7 @@ class AnnotationProject:
             except:
                 raise ValueError("Invalid reasoning prompt format. Ensure it contains {task_description}, {input} and {output} placeholders.")
         
-        
+        records
         # generate reasoning
         for record in tqdm.tqdm(records):
 
