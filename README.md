@@ -86,7 +86,7 @@ It supports a range of models, including both LLMs and embedding models. This in
 
 ## ToDo
 
-- [ ] Figure out a way to use strucured output (similar to [OpenAI](https://openai.com/index/introducing-structured-outputs-in-the-api/)) for tasks definition, model output, and evaluation.
+- [ ] Figure out a way to use strucured output (similar to [OpenAI](https://openai.com/index/introducing-structured-outputs-in-the-api/)) for tasks definition, model output, and evaluation. See also: [jsonformer](https://github.com/1rgs/jsonformer), [instructor](https://github.com/jxnl/instructor), [outlines](https://github.com/dottxt-ai/outlines)
 
 - [ ] Training a simple Peft Model
 
