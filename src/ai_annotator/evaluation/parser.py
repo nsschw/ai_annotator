@@ -36,6 +36,7 @@ def parse_list(strings: list[str], bos_split_token: str = None, eos_split_token:
         delimiter: A substring used to split each string into sublists.
         default_value: A default list of strings to return if an error occurs during parsing.
     """
+
     parsed_lists: list[list[str]] = []
     for string in strings:
         if bos_split_token:
@@ -63,6 +64,7 @@ def parse_json(strings: list[str], default_value: dict = {}) -> list[dict]:
     Note:
     - Not tested!
     """
+    
     parsed_jsons: list[dict] = []
     for string in strings:
         try:
