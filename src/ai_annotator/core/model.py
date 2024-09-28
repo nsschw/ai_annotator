@@ -60,11 +60,8 @@ class HuggingFaceModel(Model):
         self.tokenizer = transformers.AutoTokenizer.from_pretrained(model)
 
     def generate(self, conv: list[dict]) -> str:
-
-        if conv[0]["role"] == "system":
-            conv = self.tokenizer.apply_chat_template(conv,  tokenize=True, return_tensors="pt", add_generation_prompt=True).to('cuda')
-        else:
-            conv = self.tokenizer.apply_chat_template(conv,  tokenize=True, return_tensors="pt", add_generation_prompt=True).to('cuda')
+        
+        conv = self.tokenizer.apply_chat_template(conv,  tokenize=True, return_tensors="pt", add_generation_prompt=True).to('cuda')
 
         with self.torch.no_grad():
             generated_ids = self.model.generate(conv, temperature = 0.7, do_sample=True, max_new_tokens = 3000)[0][conv.shape[-1]:]
