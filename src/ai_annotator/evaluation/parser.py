@@ -15,7 +15,7 @@ def parse_first_int(strings: list[str], bos_split_token: str = None, eos_split_t
         if bos_split_token:
             string = string.split(bos_split_token)[-1]
         if eos_split_token:
-            string = string.split(bos_split_token)[0]
+            string = string.split(eos_split_token)[0]
         try:
             number = re.search(r'\d+', string).group()
             parsed_integers.append(int(number))
