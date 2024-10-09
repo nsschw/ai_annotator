@@ -3,6 +3,7 @@ from typing import Optional
 from .model import Model, OpenAIModel
 from .embedding_model import EmbeddingModel
 import os
+import importlib.resources
 
 class AnnotationConfig():
     """
@@ -48,10 +49,9 @@ class AnnotationConfig():
 
 
 class PathConfig:
-    """
-    Won't work if pip installed
-    """
+    # Get the path to the installed package
+    BASE_DIR = importlib.resources.files('ai_annotator')
 
-    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    PROMPTS_DIR = os.path.join(BASE_DIR, 'prompts')
-    GOLD_LABEL_PROMPT = os.path.join(PROMPTS_DIR, 'gold_label-induced_reasoning.txt')
+    # Define paths relative to the package directory
+    PROMPTS_DIR = BASE_DIR / 'prompts'
+    GOLD_LABEL_PROMPT = PROMPTS_DIR / 'gold_label-induced_reasoning.txt'
