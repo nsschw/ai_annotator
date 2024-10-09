@@ -82,13 +82,10 @@ class AnnotationProject:
             records.append(record)
    
         self.db.insert_data(records=records)        
-        
-        if reasoning_available:
-            self.reasoning_available = True
-        else:
-            self.reasoning_available = False
-
         logging.info("Successfully added data.")
+        
+        self.reasoning_available = True if reasoning_available else False
+        
 
 
     def to_parquet(self, path: str, include_embeddings: bool = False) -> None:
