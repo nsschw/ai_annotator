@@ -1,4 +1,4 @@
 from .core import *
-from ai_annotator import evaluation
+from ai_annotator import evaluation, metrics
 
 __all__ = ["load"]
