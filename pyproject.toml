@@ -5,6 +5,7 @@ description = "Tool for rapid testing of LLMs for annotation tasks."
 authors = [
     { name = "nsschw", email = "s2nsschw@uni-trier.com" }
 ]
+requires-python = ">=3.9"
 
 dependencies = [
     "openai",
