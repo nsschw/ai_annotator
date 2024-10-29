@@ -130,4 +130,4 @@ class ChromaDB(DB):
         
         for i, example in enumerate(records):
             example["input"] = query_results["documents"][0][i]
-        return records
+        return records[::-1] # most similar first last so it has the most influence on the final decision (i hope)
